@@ -12,7 +12,7 @@ var _ T.ITG = (*Tg)(nil)
 type Tg struct {
 }
 
-func NewTGBot(cfg T.ICfg, log T.ILog, ttv T.ITTV) *Tg {
+func NewTGBot(cfg T.ICfg, log T.ILog) *Tg {
 
 	return &Tg{}
 }

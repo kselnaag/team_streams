@@ -74,7 +74,7 @@ func NewLogFprintf(cfg T.ICfg, metricTime time.Duration, batchTime time.Duration
 	}
 
 	var lvl LogLevel
-	switch cfg.GetEnvVal(T.SS_LOG_LEVEL) {
+	switch cfg.GetEnvVal(T.TS_LOG_LEVEL) {
 	case StrTrace:
 		lvl = Trace
 	case StrDebug:
@@ -94,8 +94,8 @@ func NewLogFprintf(cfg T.ICfg, metricTime time.Duration, batchTime time.Duration
 	}
 	return &LogFprintf{
 		loglvl:     lvl,
-		host:       cfg.GetEnvVal(T.SS_APP_IP),
-		svc:        cfg.GetEnvVal(T.SS_APP_NAME),
+		host:       cfg.GetEnvVal(T.TS_APP_IP),
+		svc:        cfg.GetEnvVal(T.TS_APP_NAME),
 		targets:    targets,
 		batchTime:  batchTime,
 		metricTime: metricTime,

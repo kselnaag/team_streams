@@ -21,12 +21,12 @@ type CfgMaps struct {
 	log       T.ILog
 }
 
-func NewCfgMap(dir, file string) *CfgMaps {
+func NewCfgMaps(dir, file string) *CfgMaps {
 	envVals := make(map[string]string, 8)
 	jsonVals := make(map[string]string, 8)
-	envVals[T.SS_APP_NAME] = file
-	envVals[T.SS_APP_IP] = "localhost"
-	envVals[T.SS_LOG_LEVEL] = "INFO" // LOG levels: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default if empty or mess)
+	envVals[T.TS_APP_NAME] = file
+	envVals[T.TS_APP_IP] = "localhost"
+	envVals[T.TS_LOG_LEVEL] = "INFO" // LOG levels: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default if empty or mess)
 	envVals[T.TG_BOT_TOKEN] = ""
 	envVals[T.TTV_CLIENT_ID] = ""
 	envVals[T.TTV_CLIENT_SECRET] = ""
@@ -127,7 +127,7 @@ func (c *CfgMaps) parseIpFromInterface() {
 	}
 	ip := strings.Join(strarr, ";")
 	if len(ip) > 0 {
-		c.SetEnvVal(T.SS_APP_IP, ip)
+		c.SetEnvVal(T.TS_APP_IP, ip)
 		c.log.LogDebug("(CfgMaps).parseIpFromInterface(): %s", ip)
 	}
 }

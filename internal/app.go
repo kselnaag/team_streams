@@ -28,10 +28,10 @@ func execPathAndFname() (string, string) {
 
 func NewApp() *App {
 	appdir, appname := execPathAndFname()
-	cfg := C.NewCfgMap(appdir, appname).Parse()
+	cfg := C.NewCfgMaps(appdir, appname).Parse()
 	log := L.NewLogFprintf(cfg, 0, 0)
-	ttv := TTV.NewTTVApp(cfg, log)
-	tg := TG.NewTGBot(cfg, log, ttv)
+	tg := TG.NewTGBot(cfg, log)
+	ttv := TTV.NewTTVApp(cfg, log, tg)
 	return &App{
 		appname: appname,
 		cfg:     cfg,
@@ -43,13 +43,14 @@ func NewApp() *App {
 
 func (a *App) Start() func(err error) {
 	logStop := a.log.Start()
+	//TGStop := tg.Start()
+	TTVStop := a.ttv.Start()
 	a.log.LogInfo(a.appname + " app started")
-
-	// os.Exit(0)
 	return func(err error) { // AppStop
-
+		TTVStop(nil)
+		// TGStop(nil)
 		if err != nil {
-			a.log.LogPanic(fmt.Errorf("%s: %w", a.appname+" app stoped with error", err))
+			a.log.LogError(fmt.Errorf("%s: %w", a.appname+" app stoped with error", err))
 		} else {
 			a.log.LogInfo(a.appname + " app stoped")
 		}

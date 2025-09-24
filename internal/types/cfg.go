@@ -8,9 +8,9 @@ type ICfg interface {
 }
 
 const (
-	SS_APP_NAME         = "SS_APP_NAME"
-	SS_APP_IP           = "SS_APP_IP"
-	SS_LOG_LEVEL        = "SS_LOG_LEVEL"
+	TS_APP_NAME         = "SS_APP_NAME"
+	TS_APP_IP           = "SS_APP_IP"
+	TS_LOG_LEVEL        = "SS_LOG_LEVEL"
 	TG_BOT_TOKEN        = "TG_BOT_TOKEN"
 	TTV_CLIENT_ID       = "TTV_CLIENT_ID"
 	TTV_CLIENT_SECRET   = "TTV_CLIENT_SECRET"

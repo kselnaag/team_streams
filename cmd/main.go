@@ -5,13 +5,13 @@ import (
 	"os/signal"
 	"runtime"
 	"syscall"
-	app "team_streams/internal"
+	APP "team_streams/internal"
 )
 
 func main() {
 	runtime.GOMAXPROCS(1)
 
-	myApp := app.NewApp()
+	myApp := APP.NewApp()
 	myAppStop := myApp.Start()
 
 	defer func() {
@@ -27,7 +27,7 @@ func main() {
 		switch <-sig {
 		case syscall.SIGHUP: // kill -SIGHUP <pid> // restarting all for sake of config reload
 			myAppStop(nil)
-			myApp = app.NewApp()
+			myApp = APP.NewApp()
 			myAppStop = myApp.Start()
 		default:
 			myAppStop(nil)
