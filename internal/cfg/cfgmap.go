@@ -2,6 +2,8 @@ package cfg
 
 import (
 	"bufio"
+	"encoding/json"
+	"fmt"
 	"net"
 	"os"
 	"path/filepath"
@@ -17,13 +19,12 @@ type CfgMaps struct {
 	envFname  string
 	envVals   map[string]string
 	jsonFname string
-	jsonVals  map[string]string
+	jsonVals  []T.User
 	log       T.ILog
 }
 
 func NewCfgMaps(dir, file string) *CfgMaps {
 	envVals := make(map[string]string, 8)
-	jsonVals := make(map[string]string, 8)
 	envVals[T.TS_APP_NAME] = file
 	envVals[T.TS_APP_IP] = "localhost"
 	envVals[T.TS_LOG_LEVEL] = "INFO" // LOG levels: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default if empty or mess)
@@ -35,7 +36,7 @@ func NewCfgMaps(dir, file string) *CfgMaps {
 		envFname:  filepath.Join(dir, file+".env"),
 		envVals:   envVals,
 		jsonFname: filepath.Join(dir, file+".json"),
-		jsonVals:  jsonVals,
+		// jsonVals:  []T.User{},
 	}
 }
 
@@ -48,7 +49,25 @@ func (c *CfgMaps) Parse() T.ICfg {
 		}
 	}
 	c.parseOsEnvVars()
+	c.parseFileJsonVars()
 	return c
+}
+
+func (c *CfgMaps) GetJsonVals() []T.User {
+	return c.jsonVals
+}
+
+func (c *CfgMaps) parseFileJsonVars() {
+	fileBuf, err := os.ReadFile(c.jsonFname)
+	if err != nil {
+		c.log.LogError(fmt.Errorf("%s: %w", "(CfgMaps).GetJsonVals(): error while reading json cfg file", err))
+	}
+	var users T.Users
+	err = json.Unmarshal(fileBuf, &users)
+	if err != nil {
+		c.log.LogError(fmt.Errorf("%s: %w", "(CfgMaps).GetJsonVals(): error while Unmarshaling json cfg file", err))
+	}
+	c.jsonVals = users.Users
 }
 
 func (c *CfgMaps) SetEnvVal(setkey string, setval string) {
@@ -57,7 +76,7 @@ func (c *CfgMaps) SetEnvVal(setkey string, setval string) {
 			c.envVals[setkey] = setval
 			envFileBuf, err := os.ReadFile(c.envFname)
 			if err != nil {
-				c.log.LogWarn("%s", "(CfgMaps).SetEnvVal(): warning while reading cfg file"+err.Error())
+				c.log.LogError(fmt.Errorf("%s: %w", "(CfgMaps).SetEnvVal(): error while reading cfg file", err))
 			}
 
 			regex := regexp.MustCompile(setkey + "=" + ".*\n")
@@ -65,7 +84,7 @@ func (c *CfgMaps) SetEnvVal(setkey string, setval string) {
 
 			err = os.WriteFile(c.envFname, []byte(fixedEnvFileBuf), os.ModePerm)
 			if err != nil {
-				c.log.LogWarn("%s", "(CfgMaps).SetEnvVal(): warning while writing cfg file"+err.Error())
+				c.log.LogError(fmt.Errorf("%s: %w", "(CfgMaps).SetEnvVal(): error while writing cfg file", err))
 			}
 		}
 	}
@@ -88,7 +107,7 @@ func (c *CfgMaps) parseOsEnvVars() {
 func (c *CfgMaps) parseFileDotEnvVars() {
 	f, err := os.Open(c.envFname)
 	if err != nil {
-		c.log.LogWarn("%s", "(CfgMaps).parseFileDotEnvVars(): warning while opening cfg file"+err.Error())
+		c.log.LogError(fmt.Errorf("%s: %w", "(CfgMaps).parseFileDotEnvVars(): error while opening cfg file", err))
 		return
 	}
 	c.log.LogDebug("load config from file: %s", c.envFname)
@@ -107,14 +126,14 @@ func (c *CfgMaps) parseFileDotEnvVars() {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		c.log.LogWarn("%s", "(CfgMaps).parseFileDotEnvVars(): warning while reading cfg file"+err.Error())
+		c.log.LogError(fmt.Errorf("%s: %w", "(CfgMaps).parseFileDotEnvVars(): error while reading cfg file", err))
 	}
 }
 
 func (c *CfgMaps) parseIpFromInterface() {
 	addr, err := net.InterfaceAddrs()
 	if err != nil {
-		c.log.LogWarn("%s", "CfgMaps.parseIpFromInterface(): warning while getting IP interface"+err.Error())
+		c.log.LogError(fmt.Errorf("%s: %w", "(CfgMaps).parseIpFromInterface(): error while getting IP interface", err))
 		return
 	}
 	strarr := []string{}

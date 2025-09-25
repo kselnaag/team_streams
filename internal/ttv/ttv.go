@@ -1,6 +1,7 @@
 package ttv
 
 import (
+	"context"
 	"fmt"
 	T "team_streams/internal/types"
 	"time"
@@ -10,86 +11,129 @@ import (
 
 var _ T.ITTV = (*Ttv)(nil)
 
+const (
+	TICK_DURATION = 1 * time.Minute
+	// TICK_DURATION = 10 * time.Second
+	OFFLINE_COUNTER = 60 // (* TICK_DURATION)
+)
+
 type Ttv struct {
-	log       T.ILog
-	cfg       T.ICfg
-	tg        T.ITG
-	tickShort *time.Ticker
-	tickLong  *time.Ticker
+	log          T.ILog
+	cfg          T.ICfg
+	tg           T.ITG
+	ticker       *time.Ticker
+	userIDs      []string
+	userNames    []string
+	offlineUsers []int
+	onlineUsers  []bool
 }
 
 func NewTTVApp(cfg T.ICfg, log T.ILog, tg T.ITG) *Ttv {
+	alen := len(cfg.GetJsonVals())
+	offlineUsers := make([]int, alen)
+	onlineUsers := make([]bool, alen)
+	userIDs := make([]string, 0, alen)
+	userNames := make([]string, 0, alen)
+	for _, user := range cfg.GetJsonVals() {
+		userIDs = append(userIDs, user.TtvUserID)
+		userNames = append(userNames, user.Nickname)
+	}
 	return &Ttv{
-		log:       log,
-		cfg:       cfg,
-		tg:        tg,
-		tickShort: time.NewTicker(10 * time.Second),
-		tickLong:  time.NewTicker(1 * time.Minute),
+		log:          log,
+		cfg:          cfg,
+		tg:           tg,
+		ticker:       time.NewTicker(TICK_DURATION),
+		userIDs:      userIDs,
+		userNames:    userNames,
+		offlineUsers: offlineUsers,
+		onlineUsers:  onlineUsers,
 	}
 }
 
-func (ttv *Ttv) ClientReconnect() *TTV.Client {
-	var (
-		ttvClient *TTV.Client
-		err       error
-	)
-	for range ttv.tickShort.C {
-		ttvClient, err = TTV.NewClient(&TTV.Options{
-			ClientID:     ttv.cfg.GetEnvVal(T.TTV_CLIENT_ID),
-			ClientSecret: ttv.cfg.GetEnvVal(T.TTV_CLIENT_SECRET),
-		})
-		if err != nil {
-			ttv.log.LogWarn("%s", "ttvClient could not connect: "+err.Error())
-		} else {
-			break
-		}
-	}
-	return ttvClient
-}
-
-func (ttv *Ttv) Start() func(err error) {
+func (ttv *Ttv) clientGetStreams(ttvClient *TTV.Client) {
 	var (
 		err        error
-		okToken    bool
 		respToken  *TTV.AppAccessTokenResponse
 		respStream *TTV.StreamsResponse
 	)
-	ttvClient := ttv.ClientReconnect()
-	for range ttv.tickLong.C {
-		okToken, _, err = ttvClient.ValidateToken(ttv.cfg.GetEnvVal(T.TTV_APPACCESS_TOKEN)) // TTVclient.ValidateToken(accessToken string) (bool, *ValidateTokenResponse, error)
-		if /*-ttvClient*/ err {
-			ttvClient = ttv.ClientReconnect()
-			continue
-		}
-		if !okToken {
-			respToken, err = ttvClient.RequestAppAccessToken([]string{"user:read:email"})
-			if err != nil {
-				ttv.log.LogWarn("%s", "ttvClient.RequestAppAccessToken() could not get AccessToken: "+err.Error())
-				continue
-			}
-			ttv.cfg.SetEnvVal(T.TTV_APPACCESS_TOKEN, respToken.Data.AccessToken)
-		}
 
-		respStream, err = ttvClient.GetStreams(&TTV.StreamsParams{
-			UserLogins: []string{},
-		})
-		if err != nil {
-			ttv.log.LogWarn("%s", "ttvClient.GetStreams() could not get StreamsData: "+err.Error())
-			continue
-		}
-		for i := 0; i < len(respStream.Data.Streams); i++ {
-			name := respStream.Data.Streams[i].UserLogin
-			game := respStream.Data.Streams[i].GameName
-			title := respStream.Data.Streams[i].Title
-			fmt.Println(name + "\n" + game + "\n" + title + "\n")
-		}
-
+LabelStart:
+	respStream, err = ttvClient.GetStreams(&TTV.StreamsParams{
+		UserIDs: ttv.userIDs,
+	})
+	if err != nil {
+		ttv.log.LogError(fmt.Errorf("%s: %w", "ttvClient.GetStreams() could not get StreamsData: ", err))
+		return
 	}
+	if respStream.StatusCode == 401 {
+		respToken, err = ttvClient.RequestAppAccessToken([]string{})
+		if err != nil {
+			ttv.log.LogError(fmt.Errorf("%s: %w", "ttvClient.RequestAppAccessToken() could not get AccessToken: ", err))
+			return
+		}
+		ttv.cfg.SetEnvVal(T.TTV_APPACCESS_TOKEN, respToken.Data.AccessToken)
+		ttvClient.SetAppAccessToken(respToken.Data.AccessToken)
+		goto LabelStart
+	}
+	/* 	for _, elem := range respStream.Data.Streams {
+		fmt.Println(time.Now().Format(time.RFC3339Nano) + "\n" + elem.UserLogin + "\n" + elem.GameName + "\n" + elem.Title + "\n")
+	} */
+LabelFor:
+	for i, el := range ttv.userIDs {
+		for _, elem := range respStream.Data.Streams {
+			if el == elem.UserID {
+				if !ttv.onlineUsers[i] {
+					ttv.onlineUsers[i] = true
+					ttv.offlineUsers[i] = 0
+					// tg call - channel online - elem
+					fmt.Println(time.Now().Format(time.RFC3339Nano) + "\n" + elem.UserLogin + "\n" + elem.GameName + "\n" + elem.Title + "\n")
+				}
+				continue LabelFor
+			}
+		}
+		if ttv.onlineUsers[i] {
+			if ttv.offlineUsers[i] < OFFLINE_COUNTER {
+				ttv.offlineUsers[i]++
+			} else {
+				ttv.onlineUsers[i] = false
+				ttv.offlineUsers[i] = 0
+				fmt.Println(ttv.userNames[i] + " offline\n")
+			}
+		}
+	}
+}
 
+func (ttv *Ttv) clientUpdate(ctx context.Context) {
+	ttv.ticker.Reset(TICK_DURATION)
+	ttvClient, err := TTV.NewClient(&TTV.Options{
+		ClientID:     ttv.cfg.GetEnvVal(T.TTV_CLIENT_ID),
+		ClientSecret: ttv.cfg.GetEnvVal(T.TTV_CLIENT_SECRET),
+	})
+	if err != nil {
+		ttv.log.LogError(fmt.Errorf("%s: %w", "ttvClient could not be created: ", err))
+	}
+	ttvClient.SetAppAccessToken(ttv.cfg.GetEnvVal(T.TTV_APPACCESS_TOKEN))
+
+	go func() {
+	LabelUpdateStop:
+		for {
+			select {
+			case <-ctx.Done():
+				break LabelUpdateStop
+			case <-ttv.ticker.C:
+				ttv.clientGetStreams(ttvClient)
+			}
+		}
+		ttv.ticker.Stop()
+	}()
+}
+
+func (ttv *Ttv) Start() func(err error) {
+	ctxUpdate, ctxCancelUpdate := context.WithCancel(context.Background())
+	go ttv.clientUpdate(ctxUpdate)
 	ttv.log.LogInfo("TTV_app started")
 	return func(err error) { // TtvStop
-		ttv.tickLong.Stop()
-		ttv.tickShort.Stop()
+		ctxCancelUpdate()
 		if err != nil {
 			ttv.log.LogError(fmt.Errorf("%s: %w", "TTV_app stoped with error", err))
 		} else {
