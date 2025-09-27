@@ -75,9 +75,10 @@ LabelStart:
 		ttvClient.SetAppAccessToken(respToken.Data.AccessToken)
 		goto LabelStart
 	}
-	/* 	for _, elem := range respStream.Data.Streams {
-		fmt.Println(time.Now().Format(time.RFC3339Nano) + "\n" + elem.UserLogin + "\n" + elem.GameName + "\n" + elem.Title + "\n")
-	} */
+	streams := make([][4]string, 0, len(ttv.cfg.GetJsonVals()))
+	for _, elem := range respStream.Data.Streams {
+		streams = append(streams, [4]string{elem.UserID, elem.UserLogin, elem.GameName, elem.Title})
+	}
 LabelFor:
 	for i, el := range ttv.userIDs {
 		for _, elem := range respStream.Data.Streams {
@@ -85,8 +86,8 @@ LabelFor:
 				if !ttv.onlineUsers[i] {
 					ttv.onlineUsers[i] = true
 					ttv.offlineUsers[i] = 0
-					// tg call - channel online - elem
-					fmt.Println(time.Now().Format(time.RFC3339Nano) + "\n" + elem.UserLogin + "\n" + elem.GameName + "\n" + elem.Title + "\n")
+					ttv.log.LogInfo("TTV: %s || %s || %s || %s", elem.UserID, elem.UserLogin, elem.GameName, elem.Title)
+					go ttv.tg.TTVUserOnlineNotify(elem.UserID, streams)
 				}
 				continue LabelFor
 			}
@@ -97,7 +98,7 @@ LabelFor:
 			} else {
 				ttv.onlineUsers[i] = false
 				ttv.offlineUsers[i] = 0
-				fmt.Println(ttv.userNames[i] + " offline\n")
+				ttv.log.LogInfo("TTV:%s offline", ttv.userNames[i])
 			}
 		}
 	}
@@ -129,11 +130,11 @@ func (ttv *Ttv) clientUpdate(ctx context.Context) {
 }
 
 func (ttv *Ttv) Start() func(err error) {
-	ctxUpdate, ctxCancelUpdate := context.WithCancel(context.Background())
-	go ttv.clientUpdate(ctxUpdate)
+	ctxTTVUpdate, ctxCancelTTVUpdate := context.WithCancel(context.Background())
+	go ttv.clientUpdate(ctxTTVUpdate)
 	ttv.log.LogInfo("TTV_app started")
 	return func(err error) { // TtvStop
-		ctxCancelUpdate()
+		ctxCancelTTVUpdate()
 		if err != nil {
 			ttv.log.LogError(fmt.Errorf("%s: %w", "TTV_app stoped with error", err))
 		} else {

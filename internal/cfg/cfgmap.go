@@ -27,7 +27,8 @@ func NewCfgMaps(dir, file string) *CfgMaps {
 	envVals := make(map[string]string, 8)
 	envVals[T.TS_APP_NAME] = file
 	envVals[T.TS_APP_IP] = "localhost"
-	envVals[T.TS_LOG_LEVEL] = "INFO" // LOG levels: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default if empty or mess)
+	envVals[T.TS_LOG_LEVEL] = "INFO"      // TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default if empty or mess)
+	envVals[T.TS_APP_AUTOFORWARD] = "OFF" // ON OFF
 	envVals[T.TG_BOT_TOKEN] = ""
 	envVals[T.TTV_CLIENT_ID] = ""
 	envVals[T.TTV_CLIENT_SECRET] = ""

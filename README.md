@@ -10,6 +10,7 @@
 - Just start TTV stream: bot makes post about it in your TG channel and forwards it to another team members
 - Make post manualy in your TG channel and forward it into bot: it forwards post to another team members
 - Make post in bot privat chat: bot makes this post in your TG channel and forwards it to another team members
+- Bot options control throught bot private commands/menu *(still under construction)*
 
 You should add the bot to all TG chanels as administrator with posting rights and start it.
 
@@ -23,6 +24,7 @@ kselnaag:~/team_streams$ cat ./bin/team_streams.env
 # LOG levels: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default if empty or mess)
 TS_LOG_LEVEL=INFO
 TS_APP_IP=localhost
+TS_APP_AUTOFORWARD=OFF
 TG_BOT_TOKEN=
 TTV_CLIENT_ID=
 TTV_CLIENT_SECRET=
@@ -33,7 +35,32 @@ TTV_APPACCESS_TOKEN=
 👥 Team members: 👥
 ```
 kselnaag:~/team_streams$ cat ./bin/team_streams.json
-
+{"users":[{
+    "nickname":"kselnaag",
+    "shortname":"ksel",
+    "longname":"kselnaag super star",
+    "ttvUserID":"",
+    "tgUserID":"",
+    "tgChannelID":"",
+    "tgChatID":""
+    },{
+    "nickname":"",
+    "shortname":"",
+    "longname":"",
+    "ttvUserID":"",
+    "tgUserID":"",
+    "tgChannelID":"",
+    "tgChatID":""
+    },{
+    "nickname":"",
+    "shortname":"",
+    "longname":"",
+    "ttvUserID":"",
+    "tgUserID":"",
+    "tgChannelID":"",
+    "tgChatID":""
+    }
+]}
 
 ```
 
