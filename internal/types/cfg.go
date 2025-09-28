@@ -25,6 +25,7 @@ type User struct {
 	TtvUserID   string
 	TgUserID    string
 	TgChannelID string
+	TgChatID    string
 }
 
 type Users struct {

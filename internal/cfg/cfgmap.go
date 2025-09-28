@@ -114,7 +114,7 @@ func (c *CfgMaps) parseFileDotEnvVars() {
 	c.log.LogDebug("load config from file: %s", c.envFname)
 	defer f.Close()
 
-	pattern := regexp.MustCompile("^[0-9A-Za-z_]+=[0-9A-Za-z_:/.]+")
+	pattern := regexp.MustCompile("^[0-9A-Za-z_]+=[0-9A-Za-z-_:/.]+")
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		str := pattern.FindString(scanner.Text())

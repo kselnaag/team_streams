@@ -3,10 +3,10 @@
 
 ## 🍱 System parts
 - team_streams_app - TwitchAPI_app as TTV integration part *(make it in Twitch dev panel)*
-- team_streams_bot - TG_bot as TG integration part *(make it throught BotFather in Telegram)*
+- team_streams_bot - Telegram_bot as TG integration part *(make it throught BotFather in Telegram)*
 - team_streams - external service with logic and usecases *(this project)*
 
-## 💡 Functional
+## ⚡ Features
 - Just start TTV stream: bot makes post about it in your TG channel and forwards it to another team members
 - Make post manualy in your TG channel and forward it into bot: it forwards post to another team members
 - Make post in bot privat chat: bot makes this post in your TG channel and forwards it to another team members
@@ -95,6 +95,9 @@ kselnaag:~/team_streams$ ldd ./bin/team_streams
         /lib64/ld-linux-x86-64.so.2 (0x000073cc276ca000)
 ```
 In case of emergency change the build script
+
+## 💡 Work-process description
+
 
 ----
 ### **🔗 LINKS**
