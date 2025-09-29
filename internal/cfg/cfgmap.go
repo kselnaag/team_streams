@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	L "team_streams/internal/log"
 	T "team_streams/internal/types"
 )
@@ -21,6 +22,7 @@ type CfgMaps struct {
 	jsonFname string
 	jsonVals  []T.User
 	log       T.ILog
+	mu        sync.Mutex
 }
 
 func NewCfgMaps(dir, file string) *CfgMaps {
@@ -72,6 +74,8 @@ func (c *CfgMaps) parseFileJsonVars() {
 }
 
 func (c *CfgMaps) SetEnvVal(setkey string, setval string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	for key := range c.envVals {
 		if key == setkey {
 			c.envVals[setkey] = setval

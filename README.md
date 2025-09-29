@@ -3,14 +3,14 @@
 
 ## 🍱 System parts
 - team_streams_app - TwitchAPI_app as TTV integration part *(make it in Twitch dev panel)*
-- team_streams_bot - Telegram_bot as TG integration part *(make it throught BotFather in Telegram)*
+- team_streams_bot - TelegramAPI_bot as TG integration part *(make it throught BotFather in Telegram)*
 - team_streams - external service with logic and usecases *(this project)*
 
 ## ⚡ Features
-- Just start TTV stream: bot makes post about it in your TG channel and forwards it to another team members
+- Just start TTV stream: bot makes post about it in your TG channel and forwards it to another team members (AUTOFORWARD=ON|OFF)
 - Make post manualy in your TG channel and forward it into bot: it forwards post to another team members
 - Make post in bot privat chat: bot makes this post in your TG channel and forwards it to another team members
-- Bot options control throught bot private commands/menu *(still under construction)*
+- Bot options control throught bot private chat by commands/menu *(still under construction)*
 
 You should add the bot to all TG chanels as administrator with posting rights and start it.
 
@@ -76,7 +76,7 @@ drwxrwxrwx 1 ksel ksel    4096 Sep 22 23:28 ../
 -rwxrwxrwx 1 ksel ksel      28 Sep 20 21:50 team_streams.json
 ```
 
-To re-read configs without stopping process use `kill -SIGHUP <pid>`
+To re-read configs without stopping process use `kill -SIGHUP <pid>` (server access required) or use options control throught bot private chat (if authenticated in TG)
 
 ## ⚙️ Build script
 
