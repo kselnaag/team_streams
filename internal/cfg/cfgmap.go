@@ -20,7 +20,8 @@ type CfgMaps struct {
 	envFname  string
 	envVals   map[string]string
 	jsonFname string
-	jsonVals  []T.User
+	jsonUsers []T.User
+	jsonAdmin T.User
 	log       T.ILog
 	mu        sync.Mutex
 }
@@ -39,25 +40,28 @@ func NewCfgMaps(dir, file string) *CfgMaps {
 		envFname:  filepath.Join(dir, file+".env"),
 		envVals:   envVals,
 		jsonFname: filepath.Join(dir, file+".json"),
-		// jsonVals:  []T.User{},
 	}
 }
 
 func (c *CfgMaps) Parse() T.ICfg {
 	c.log = L.NewLogFprintf(c, 0, 0)
 	c.parseIpFromInterface()
-	if len(c.envFname) != 0 {
-		if _, err := os.Stat(c.envFname); err == nil {
-			c.parseFileDotEnvVars()
-		}
+	if _, err := os.Stat(c.envFname); err == nil {
+		c.parseFileDotEnvVars()
 	}
 	c.parseOsEnvVars()
-	c.parseFileJsonVars()
+
+	if _, err := os.Stat(c.jsonFname); err == nil {
+		c.parseFileJsonVars()
+	}
 	return c
 }
 
-func (c *CfgMaps) GetJsonVals() []T.User {
-	return c.jsonVals
+func (c *CfgMaps) GetJsonUsers() []T.User {
+	return c.jsonUsers
+}
+func (c *CfgMaps) GetJsonAdmin() T.User {
+	return c.jsonAdmin
 }
 
 func (c *CfgMaps) parseFileJsonVars() {
@@ -65,12 +69,13 @@ func (c *CfgMaps) parseFileJsonVars() {
 	if err != nil {
 		c.log.LogError(fmt.Errorf("%s: %w", "(CfgMaps).GetJsonVals(): error while reading json cfg file", err))
 	}
-	var users T.Users
-	err = json.Unmarshal(fileBuf, &users)
+	var vals T.JsonVals
+	err = json.Unmarshal(fileBuf, &vals)
 	if err != nil {
 		c.log.LogError(fmt.Errorf("%s: %w", "(CfgMaps).GetJsonVals(): error while Unmarshaling json cfg file", err))
 	}
-	c.jsonVals = users.Users
+	c.jsonUsers = vals.Users
+	c.jsonAdmin = vals.Admin
 }
 
 func (c *CfgMaps) SetEnvVal(setkey string, setval string) {

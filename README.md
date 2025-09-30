@@ -7,10 +7,10 @@
 - team_streams - external service with logic and usecases *(this project)*
 
 ## ⚡ Features
-- Just start TTV stream: bot makes post about it in your TG channel and forwards it to another team members (AUTOFORWARD=ON|OFF)
+- Just start TTV stream: bot makes post about it in main TG channel and forwards it to another team members (AUTOFORWARD=DEBUG|ON|OFF)
 - Make post manualy in your TG channel and forward it into bot: it forwards post to another team members
 - Make post in bot privat chat: bot makes this post in your TG channel and forwards it to another team members
-- Bot options control throught bot private chat by commands/menu *(still under construction)*
+- Bot options control throught bot private chat by special commands
 
 You should add the bot to all TG chanels as administrator with posting rights and start it.
 
@@ -24,28 +24,27 @@ kselnaag:~/team_streams$ cat ./bin/team_streams.env
 # LOG levels: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default if empty or mess)
 TS_LOG_LEVEL=INFO
 TS_APP_IP=localhost
-TS_APP_AUTOFORWARD=OFF
+# TTV AUTOFORWARD: DEBUG, ON, OFF
+TS_APP_AUTOFORWARD=DEBUG
 TG_BOT_TOKEN=
 TTV_CLIENT_ID=
 TTV_CLIENT_SECRET=
 TTV_APPACCESS_TOKEN=
-
 ```
 
 👥 Team members: 👥
 ```
 kselnaag:~/team_streams$ cat ./bin/team_streams.json
-{"users":[{
-    "nickname":"kselnaag",
-    "shortname":"ksel",
-    "longname":"kselnaag super star",
+{"admin":{
+    "nickname":"",
+    "longname":"",
     "ttvUserID":"",
     "tgUserID":"",
     "tgChannelID":"",
     "tgChatID":""
-    },{
+    },    
+"users":[{
     "nickname":"",
-    "shortname":"",
     "longname":"",
     "ttvUserID":"",
     "tgUserID":"",
@@ -53,7 +52,13 @@ kselnaag:~/team_streams$ cat ./bin/team_streams.json
     "tgChatID":""
     },{
     "nickname":"",
-    "shortname":"",
+    "longname":"",
+    "ttvUserID":"",
+    "tgUserID":"",
+    "tgChannelID":"",
+    "tgChatID":""
+    },{
+    "nickname":"",
     "longname":"",
     "ttvUserID":"",
     "tgUserID":"",
@@ -61,7 +66,6 @@ kselnaag:~/team_streams$ cat ./bin/team_streams.json
     "tgChatID":""
     }
 ]}
-
 ```
 
 Fill and save this configs near by the executable file
@@ -76,7 +80,7 @@ drwxrwxrwx 1 ksel ksel    4096 Sep 22 23:28 ../
 -rwxrwxrwx 1 ksel ksel      28 Sep 20 21:50 team_streams.json
 ```
 
-To re-read configs without stopping process use `kill -SIGHUP <pid>` (server access required) or use options control throught bot private chat (if authenticated in TG)
+To re-read configs without stopping process use `kill -SIGHUP <pid>` (server access required) or use options control throught bot private chat (if authorized in TG)
 
 ## ⚙️ Build script
 
@@ -98,6 +102,22 @@ In case of emergency change the build script
 
 ## 💡 Work-process description
 
+
+## 🦋 Inspired by STOILO_TEAM
+
+<p align="center">
+<br>
+|
+  <a href="https://www.twitch.tv/dayopponent" title="https://www.twitch.tv/dayopponent" >dayopponent</a> |
+  <a href="https://www.twitch.tv/iksssy" title="https://www.twitch.tv/iksssy">iksssy</a> |
+  <a href="https://www.twitch.tv/mewendi" title="https://www.twitch.tv/mewendi">mewendi</a>
+|
+<br><br>
+<img style="margin-right: 50px;" width="20%" src="pics/dayopponent.jpg" title="dayopponent" alt="dayopponent">
+<img style="margin-bottom: 5px;" width="20%" src="pics/iksssy.jpg" title="iksssy" alt="iksssy">
+<img style="margin-left: 50px;"width="20%" src="pics/mewendi.jpg" title="mewendi" alt="mewendi">
+</p>
+<br><br>
 
 ----
 ### **🔗 LINKS**

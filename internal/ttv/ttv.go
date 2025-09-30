@@ -29,12 +29,12 @@ type Ttv struct {
 }
 
 func NewTTVApp(cfg T.ICfg, log T.ILog, tg T.ITG) *Ttv {
-	alen := len(cfg.GetJsonVals())
+	alen := len(cfg.GetJsonUsers())
 	offlineUsers := make([]int, alen)
 	onlineUsers := make([]bool, alen)
 	userIDs := make([]string, 0, alen)
 	userNames := make([]string, 0, alen)
-	for _, user := range cfg.GetJsonVals() {
+	for _, user := range cfg.GetJsonUsers() {
 		userIDs = append(userIDs, user.TtvUserID)
 		userNames = append(userNames, user.Nickname)
 	}
@@ -75,9 +75,9 @@ LabelStart:
 		ttvClient.SetAppAccessToken(respToken.Data.AccessToken)
 		goto LabelStart
 	}
-	streams := make([][4]string, 0, len(ttv.cfg.GetJsonVals()))
+	ttvStreams := make([][4]string, 0, len(ttv.cfg.GetJsonUsers()))
 	for _, elem := range respStream.Data.Streams {
-		streams = append(streams, [4]string{elem.UserID, elem.UserLogin, elem.GameName, elem.Title})
+		ttvStreams = append(ttvStreams, [4]string{elem.UserID, elem.UserLogin, elem.GameName, elem.Title})
 	}
 LabelFor:
 	for i, el := range ttv.userIDs {
@@ -86,8 +86,8 @@ LabelFor:
 				if !ttv.onlineUsers[i] {
 					ttv.onlineUsers[i] = true
 					ttv.offlineUsers[i] = 0
-					ttv.log.LogInfo("TTV: %s || %s || %s || %s", elem.UserID, elem.UserLogin, elem.GameName, elem.Title)
-					go ttv.tg.TTVUserOnlineNotify(elem.UserID, streams)
+					ttv.log.LogDebug("TTV: %s || %s || %s || %s", elem.UserID, elem.UserLogin, elem.GameName, elem.Title)
+					go ttv.tg.TTVUserOnlineNotify(elem.UserID, ttvStreams)
 				}
 				continue LabelFor
 			}
@@ -98,7 +98,7 @@ LabelFor:
 			} else {
 				ttv.onlineUsers[i] = false
 				ttv.offlineUsers[i] = 0
-				ttv.log.LogInfo("TTV:%s offline", ttv.userNames[i])
+				ttv.log.LogDebug("TTV:%s offline", ttv.userNames[i])
 			}
 		}
 	}

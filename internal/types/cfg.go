@@ -3,7 +3,8 @@ package types
 type ICfg interface {
 	GetEnvVal(string) string
 	SetEnvVal(string, string)
-	GetJsonVals() []User
+	GetJsonUsers() []User
+	GetJsonAdmin() User
 	Parse() ICfg
 }
 
@@ -20,7 +21,6 @@ const (
 
 type User struct {
 	Nickname    string
-	Shortname   string
 	Longname    string
 	TtvUserID   string
 	TgUserID    string
@@ -28,6 +28,7 @@ type User struct {
 	TgChatID    string
 }
 
-type Users struct {
+type JsonVals struct {
+	Admin User
 	Users []User
 }
