@@ -44,10 +44,10 @@ func NewApp() *App {
 func (a *App) Start() func(err error) {
 	logStop := a.log.Start()
 	TGStop := a.tg.Start()
-	// TTVStop := a.ttv.Start()
+	TTVStop := a.ttv.Start()
 	a.log.LogInfo(a.appname + " app started")
 	return func(err error) { // AppStop
-		// TTVStop(err)
+		TTVStop(err)
 		TGStop(err)
 		if err != nil {
 			a.log.LogError(fmt.Errorf("%s: %w", a.appname+" app stoped with error", err))

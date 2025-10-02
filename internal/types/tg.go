@@ -13,4 +13,8 @@ const (
 	COMMAND_POST        = "post"
 	COMMAND_GETADMINS   = "getadmins"
 	COMMAND_SENDMSG     = "sendmsg"
+
+	AFORW_DEBUG = "DEBUG"
+	AFORW_OFF   = "OFF"
+	AFORW_ON    = "ON"
 )

@@ -42,7 +42,7 @@ kselnaag:~/team_streams$ cat ./bin/team_streams.json
     "tgUserID":"",
     "tgChannelID":"",
     "tgChatID":""
-    },    
+    },
 "users":[{
     "nickname":"",
     "longname":"",
