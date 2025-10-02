@@ -1,4 +1,4 @@
-### **TEAM_STREAMS**  📱  Integration bot for coupling twitch and telegram channels 💻
+# **TEAM_STREAMS**<br>📱 Integration bot for coupling twitch and telegram channels 💻 
 ----
 
 ## 🍱 System parts
@@ -7,7 +7,7 @@
 - team_streams - external service with logic and usecases *(this project)*
 
 ## ⚡ Features
-- Just start TTV stream: bot makes post about it in main TG channel and forwards it to another team members (AUTOFORWARD=DEBUG|ON|OFF)
+- Just start TTV stream: bot makes post about it in main TG channel and forwards it to another team members
 - Make post manualy in your TG channel and forward it into bot: it forwards post to another team members
 - Make post in bot privat chat: bot makes this post in your TG channel and forwards it to another team members
 - Bot options control throught bot private chat by special commands
@@ -67,7 +67,6 @@ kselnaag:~/team_streams$ cat ./bin/team_streams.json
     }
 ]}
 ```
-
 Fill and save this configs near by the executable file
 
 📂 Start folder: 🏁
@@ -75,11 +74,10 @@ Fill and save this configs near by the executable file
 kselnaag:~/team_streams/bin$ ll
 drwxrwxrwx 1 ksel ksel    4096 Sep 23 04:38 ./
 drwxrwxrwx 1 ksel ksel    4096 Sep 22 23:28 ../
--rwxrwxrwx 1 ksel ksel 5356924 Sep 23 04:38 team_streams*
--rwxrwxrwx 1 ksel ksel     347 Sep 20 21:50 team_streams.env
--rwxrwxrwx 1 ksel ksel      28 Sep 20 21:50 team_streams.json
+-rwxrwxrwx 1 ksel ksel 9526414 Oct  1 22:04 stoilo_streams*
+-rwxrwxrwx 1 ksel ksel     347 Oct  1 21:50 team_streams.env
+-rwxrwxrwx 1 ksel ksel      28 Oct  1 21:50 team_streams.json
 ```
-
 To re-read configs without stopping process use `kill -SIGHUP <pid>` (server access required) or use options control throught bot private chat (if authorized in TG)
 
 ## ⚙️ Build script
@@ -100,8 +98,15 @@ kselnaag:~/team_streams$ ldd ./bin/team_streams
 ```
 In case of emergency change the build script
 
-## 💡 Work-process description
+## 💡 Bot operations description
 
+Commands in bot private chat, for registered users only:
+
+- /info - show app info: app_name, loglevel, autoforward, admins
+- /loglevel LVL - set level of logs to dev purposes (LVL: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default))
+- /autoforward FWD - set forwarding mode for twich notification (FWD: DEBUG-admin channel only, OFF-admin and user channel, ON-send to all)
+- /post MSG - send any MSG as notification to admin and all users
+- "Forward from any channel to bot" - forward any post or message into bot private chat if you have rights bot resends it to admin and all users
 
 ## 🦋 Inspired by STOILO_TEAM
 
