@@ -10,6 +10,7 @@ bin/team_streasm.json
 go.work
 test/**
 build/test.sh
+build/deploy.sh
 config/stoilo_streams.env
 config/stoilo_streams.json
 config/team_streams.env

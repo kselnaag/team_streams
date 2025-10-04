@@ -32,8 +32,8 @@ func (tg *Tg) authorized(next TG.HandlerFunc) TG.HandlerFunc {
 				usersAutorized[el.Administrator.User.ID] = el.Administrator.User.FirstName
 			}
 		}
-		tg.log.LogDebug("Message from ID:%d USERNAME:%s MSG:%s", update.Message.From.ID, update.Message.From.Username, update.Message.Text)
-		tg.log.LogDebug("Autorized users: %+v", usersAutorized)
+		// tg.log.LogDebug("Message from ID:%d USERNAME:%s MSG:%s", update.Message.From.ID, update.Message.From.Username, update.Message.Text)
+		// tg.log.LogDebug("Autorized users: %+v", usersAutorized)
 		for id := range usersAutorized {
 			if id == update.Message.From.ID {
 				next(ctx, bot, update)
