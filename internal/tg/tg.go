@@ -2,11 +2,13 @@ package tg
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"fmt"
 	"os"
 	"syscall"
 	T "team_streams/internal/types"
+	"team_streams/pic"
 
 	TG "github.com/go-telegram/bot"
 )
@@ -18,12 +20,14 @@ type Tg struct {
 	log T.ILog
 	ctx context.Context
 	bot *TG.Bot
+	fs  embed.FS
 }
 
 func NewTGBot(cfg T.ICfg, log T.ILog) *Tg {
 	return &Tg{
 		cfg: cfg,
 		log: log,
+		fs:  pic.StaticFS,
 	}
 }
 

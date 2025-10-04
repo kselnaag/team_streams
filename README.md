@@ -118,9 +118,9 @@ Commands in bot private chat, for registered users only:
   <a href="https://www.twitch.tv/mewendi" title="https://www.twitch.tv/mewendi">mewendi</a>
 |
 <br><br>
-<img style="margin-right: 50px;" width="20%" src="pics/dayopponent.jpg" title="dayopponent" alt="dayopponent">
-<img style="margin-bottom: 5px;" width="20%" src="pics/iksssy.jpg" title="iksssy" alt="iksssy">
-<img style="margin-left: 50px;"width="20%" src="pics/mewendi.jpg" title="mewendi" alt="mewendi">
+<img style="margin-right: 50px;" width="20%" src="pic/dayopponent.jpg" title="dayopponent" alt="dayopponent">
+<img style="margin-bottom: 5px;" width="20%" src="pic/iksssy.jpg" title="iksssy" alt="iksssy">
+<img style="margin-left: 50px;"width="20%" src="pic/mewendi.jpg" title="mewendi" alt="mewendi">
 </p>
 <br><br>
 
