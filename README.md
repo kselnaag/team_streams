@@ -26,6 +26,8 @@ TS_LOG_LEVEL=INFO
 TS_APP_IP=localhost
 # TTV AUTOFORWARD: DEBUG, ON, OFF
 TS_APP_AUTOFORWARD=DEBUG
+# TG AUTODEL: OFF, ON
+TS_APP_AUTODEL=OFF
 TG_BOT_TOKEN=
 TTV_CLIENT_ID=
 TTV_CLIENT_SECRET=
@@ -105,6 +107,7 @@ Commands in bot private chat, for registered users only:
 - /info - show app info: app_name, loglevel, autoforward, admins
 - /loglevel LVL - set level of logs to dev purposes (LVL: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default))
 - /autoforward FWD - set forwarding mode for twich notification (FWD: DEBUG-admin channel only, OFF-admin and user channel, ON-send to all)
+- /autodel DEL - set autodelete for notification when stream is offline (DEL: OFF, ON)
 - /post MSG - send any MSG as notification to admin and all users
 - "Forward from any channel to bot" - forward any post or message into bot private chat if you have rights bot resends it to admin and all users
 
