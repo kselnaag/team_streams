@@ -2,7 +2,8 @@ package types
 
 type ITG interface {
 	Start() func(error)
-	TTVUserOnlineNotify(string, [][4]string)
+	TTVNotifyUserOnline(string, [][4]string)
+	TTVNotifyUserOffline(string)
 }
 
 const (
@@ -10,11 +11,16 @@ const (
 	COMMAND_LOGLEVEL    = "loglevel"
 	COMMAND_TESTSTREAM  = "teststream"
 	COMMAND_AUTOFORWARD = "autoforward"
+	COMMAND_AUTODEL     = "autodel"
 	COMMAND_POST        = "post"
 	COMMAND_GETADMINS   = "getadmins"
 	COMMAND_SENDMSG     = "sendmsg"
+	COMMAND_DELALL      = "delall"
 
 	AFORW_DEBUG = "DEBUG"
 	AFORW_OFF   = "OFF"
 	AFORW_ON    = "ON"
+
+	ADEL_OFF = "OFF"
+	ADEL_ON  = "ON"
 )

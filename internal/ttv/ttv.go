@@ -86,7 +86,7 @@ LabelUserOnline:
 					ttv.onlineUsers[i] = true
 					ttv.offlineUsers[i] = 0
 					ttv.log.LogInfo("ttvClient.RequestAppAccessToken() online: %s %v", elem.UserID, ttvStreams)
-					go ttv.tg.TTVUserOnlineNotify(elem.UserID, ttvStreams)
+					go ttv.tg.TTVNotifyUserOnline(elem.UserID, ttvStreams)
 				}
 				continue LabelUserOnline
 			}
@@ -98,6 +98,7 @@ LabelUserOnline:
 				ttv.onlineUsers[i] = false
 				ttv.offlineUsers[i] = 0
 				ttv.log.LogInfo("ttvClient.RequestAppAccessToken(): %s offline", ttv.userNames[i])
+				go ttv.tg.TTVNotifyUserOffline(el)
 			}
 		}
 	}

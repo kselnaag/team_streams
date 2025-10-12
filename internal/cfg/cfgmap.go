@@ -27,11 +27,12 @@ type CfgMaps struct {
 }
 
 func NewCfgMaps(dir, file string) *CfgMaps {
-	envVals := make(map[string]string, 8)
+	envVals := make(map[string]string, 16)
 	envVals[T.TS_APP_NAME] = file
 	envVals[T.TS_APP_IP] = "localhost"
 	envVals[T.TS_LOG_LEVEL] = "INFO"      // TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default if empty or mess)
-	envVals[T.TS_APP_AUTOFORWARD] = "OFF" // ON OFF
+	envVals[T.TS_APP_AUTOFORWARD] = "OFF" // DEBUG OFF ON
+	envVals[T.TS_APP_AUTODEL] = "OFF"     // OFF ON
 	envVals[T.TG_BOT_TOKEN] = ""
 	envVals[T.TTV_CLIENT_ID] = ""
 	envVals[T.TTV_CLIENT_SECRET] = ""

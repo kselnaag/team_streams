@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 	"syscall"
 	T "team_streams/internal/types"
 	"team_streams/pic"
@@ -15,19 +16,31 @@ import (
 
 var _ T.ITG = (*Tg)(nil)
 
+type delMsg struct {
+	ChanID string
+	MsgID  int
+}
+
 type Tg struct {
-	cfg T.ICfg
-	log T.ILog
-	ctx context.Context
-	bot *TG.Bot
-	fs  embed.FS
+	cfg       T.ICfg
+	log       T.ILog
+	ctx       context.Context
+	bot       *TG.Bot
+	fs        embed.FS
+	mu        sync.Mutex
+	msgsToDel [][]delMsg
 }
 
 func NewTGBot(cfg T.ICfg, log T.ILog) *Tg {
+	msgsToDel := make([][]delMsg, 0, len(cfg.GetJsonUsers()))
+	for i := range msgsToDel {
+		msgsToDel[i] = make([]delMsg, 0, 4)
+	}
 	return &Tg{
-		cfg: cfg,
-		log: log,
-		fs:  pic.StaticFS,
+		cfg:       cfg,
+		log:       log,
+		fs:        pic.StaticFS,
+		msgsToDel: msgsToDel,
 	}
 }
 
@@ -79,8 +92,10 @@ func (tg *Tg) Start() func(err error) {
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_INFO, TG.MatchTypeCommandStartOnly, tg.infoHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_LOGLEVEL, TG.MatchTypeCommandStartOnly, tg.loglevelHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_AUTOFORWARD, TG.MatchTypeCommandStartOnly, tg.forwardHandler)
+	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_AUTODEL, TG.MatchTypeCommandStartOnly, tg.delHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_TESTSTREAM, TG.MatchTypeCommandStartOnly, tg.testHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_POST, TG.MatchTypeCommandStartOnly, tg.postHandler)
+	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_DELALL, TG.MatchTypeCommandStartOnly, tg.delallHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_GETADMINS, TG.MatchTypeCommandStartOnly, tg.getadminsHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_SENDMSG, TG.MatchTypeCommandStartOnly, tg.sendmsgHandler)
 
