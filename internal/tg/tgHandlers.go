@@ -250,9 +250,10 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 			break
 		}
 	}
-	msg := "Возрадуйтесь братья и сестры!\n" + tgUser.Longname + " соизволила запустить стрим!\n\n" +
+	msg := tgUser.Longname + " стримит!\n\n" +
 		ttvUser[1] + "  |  " + ttvUser[2] + "\n" +
-		ttvUser[3] + "\n\n" + "https://www.twitch.tv/" + ttvUser[1]
+		ttvUser[3] + "\n\n" +
+		"https://www.twitch.tv/" + ttvUser[1]
 	fileData, _ := tg.fs.ReadFile("data/" + ttvUser[1] + "_pic.jpg")
 	_, errDEBUG := tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
 		ChatID:  tg.cfg.GetJsonAdmin().TgChannelID,
