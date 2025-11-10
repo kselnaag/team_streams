@@ -85,7 +85,7 @@ LabelUserOnline:
 				if !ttv.onlineUsers[i] {
 					ttv.onlineUsers[i] = true
 					ttv.offlineUsers[i] = 0
-					ttv.log.LogInfo("ttvClient.RequestAppAccessToken() online: %s %v", elem.UserID, ttvStreams)
+					ttv.log.LogInfo("ttvClient.GetStreams(): %s[%s] online, %v", elem.UserLogin, elem.UserID, ttvStreams)
 					go ttv.tg.TTVNotifyUserOnline(elem.UserID, ttvStreams)
 				}
 				continue LabelUserOnline
@@ -97,7 +97,7 @@ LabelUserOnline:
 			} else {
 				ttv.onlineUsers[i] = false
 				ttv.offlineUsers[i] = 0
-				ttv.log.LogInfo("ttvClient.RequestAppAccessToken(): %s offline", ttv.userNames[i])
+				ttv.log.LogInfo("ttvClient.GetStreams(): %s[%s] offline", ttv.userNames[i], ttv.userIDs[i])
 				go ttv.tg.TTVNotifyUserOffline(el)
 			}
 		}
