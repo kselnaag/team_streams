@@ -78,7 +78,6 @@ func (tg *Tg) errorHandler(err error) {
 
 func (tg *Tg) Start() func(err error) {
 	opts := []TG.Option{
-		TG.WithWorkers(len(tg.cfg.GetJsonUsers())),
 		TG.WithMiddlewares(tg.authorized),
 		TG.WithErrorsHandler(tg.errorHandler),
 		TG.WithDefaultHandler(tg.defaultHandler),
