@@ -230,6 +230,25 @@ func (tg *Tg) testHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 	}
 }
 
+func (tg *Tg) helpHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // /help
+	tg.log.LogDebug("helplHander(): %s", update.Message.Text)
+	msg := "/help - show all commands in admin menu (this command)\n" +
+		"/info - show app info: app_name, app_IP, loglevel, autoforward, admins, etc.\n" +
+		"/loglevel [LVL] - set level of logs to dev purposes (LVL: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default))\n" +
+		"/teststream - post test message (template) to admin and all users\n" +
+		"/autoforward [FWD] - set forwarding mode for twich notification (FWD: DEBUG-admin channel only, OFF-admin and user channel, ON-send to all)\n" +
+		"/autodel [DEL] - set autodelete for notification message when stream is offline (DEL: OFF, ON)\n" +
+		"/post [MSG] - send any MSG as notification to admin and all users\n" +
+		"/getadmins [ID] - show all admins in ID channel\n" +
+		"/sendmsg [ID] [MSG] - post MSG in ID channel\n" +
+		"/delall - delete all posted mesages\n" +
+		"Forward from any autorized user to bot - forward any post or message into bot private chat if you have rights bot resends it to admin and all users\n"
+	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+		ChatID: update.Message.Chat.ID,
+		Text:   msg,
+	})
+}
+
 func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 	tg.mu.Lock()
 	defer tg.mu.Unlock()

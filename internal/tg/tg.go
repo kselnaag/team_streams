@@ -97,6 +97,7 @@ func (tg *Tg) Start() func(err error) {
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_DELALL, TG.MatchTypeCommandStartOnly, tg.delallHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_GETADMINS, TG.MatchTypeCommandStartOnly, tg.getadminsHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_SENDMSG, TG.MatchTypeCommandStartOnly, tg.sendmsgHandler)
+	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_HELP, TG.MatchTypeCommandStartOnly, tg.helpHandler)
 
 	var ctxCancelTGbot context.CancelFunc
 	tg.ctx, ctxCancelTGbot = context.WithCancel(context.Background())

@@ -103,13 +103,17 @@ In case of emergency change the build script
 ## 💡 Bot operations description
 
 Commands in bot private chat, for registered users only:
-
-- /info - show app info: app_name, loglevel, autoforward, admins
-- /loglevel LVL - set level of logs to dev purposes (LVL: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default))
-- /autoforward FWD - set forwarding mode for twich notification (FWD: DEBUG-admin channel only, OFF-admin and user channel, ON-send to all)
-- /autodel DEL - set autodelete for notification when stream is offline (DEL: OFF, ON)
-- /post MSG - send any MSG as notification to admin and all users
-- "Forward from any channel to bot" - forward any post or message into bot private chat if you have rights bot resends it to admin and all users
+- /help - show all commands in admin menu
+- /info - show app info: app_name, app_IP, loglevel, autoforward, admins, etc.
+-	/loglevel [LVL] - set level of logs to dev purposes (LVL: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default))
+-	/teststream - post test message (template) to admin and all users
+-	/autoforward [FWD] - set forwarding mode for twich notification (FWD: DEBUG-admin channel only, OFF-admin and user channel, ON-send to all)
+-	/autodel [DEL] - set autodelete for notification message when stream is offline (DEL: OFF, ON)
+-	/post [MSG] - send any MSG as notification to admin and all users
+-	/getadmins [ID] - show all admins in ID channel
+-	/sendmsg [ID] [MSG] - post MSG in ID channel
+-	/delall - delete all posted mesages
+- "Forward from any autorized user to bot" - forward any post or message into bot private chat if you have rights bot resends it to admin and all users
 
 ## 🦋 Inspired by STOILO_TEAM
 

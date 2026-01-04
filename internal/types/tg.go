@@ -16,6 +16,7 @@ const (
 	COMMAND_GETADMINS   = "getadmins"
 	COMMAND_SENDMSG     = "sendmsg"
 	COMMAND_DELALL      = "delall"
+	COMMAND_HELP        = "help"
 
 	AFORW_DEBUG = "DEBUG"
 	AFORW_OFF   = "OFF"
