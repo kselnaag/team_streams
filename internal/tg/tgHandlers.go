@@ -163,7 +163,7 @@ func (tg *Tg) testHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 	tg.log.LogDebug("testHandler() %s", update.Message.Text)
 	admin := tg.cfg.GetJsonAdmin()
 	msg := "(Тестовое уведомление)\n" +
-		"Возрадуйтесь братья и сестры!\n" + admin.Longname + " соизволил запустить стрим!\n\n" +
+		"Возрадуйтесь братья и сестры!\n" + admin.Longname + " соизволил запустить стрим !\n\n" +
 		admin.Nickname + "  |  " + "Software and game development\n" +
 		"Пишем бота, смотрим стрим!\n\n" +
 		"https://www.twitch.tv/" + admin.Nickname
@@ -270,7 +270,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 			break
 		}
 	}
-	msg := tgUser.Longname + " стримит!\n\n" +
+	msg := tgUser.Longname + " стримит !\n\n" +
 		ttvUser[1] + "  |  " + ttvUser[2] + "\n" +
 		ttvUser[3] + "\n\n" +
 		"https://www.twitch.tv/" + ttvUser[1]
