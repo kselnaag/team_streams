@@ -12,6 +12,17 @@ import (
 	TGm "github.com/go-telegram/bot/models"
 )
 
+func (tg *Tg) authorized(next TG.HandlerFunc) TG.HandlerFunc {
+	return func(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
+		usersAutorized := tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)
+		for id := range *usersAutorized {
+			if (update.Message != nil) && (id == update.Message.From.ID) {
+				next(ctx, bot, update)
+			}
+		}
+	}
+}
+
 func (tg *Tg) getChatAdmins(channel string, update *TGm.Update) *map[int64]string {
 	admins, err := tg.bot.GetChatAdministrators(tg.ctx, &TG.GetChatAdministratorsParams{ChatID: channel})
 	if err != nil {
@@ -35,28 +46,44 @@ func (tg *Tg) getChatAdmins(channel string, update *TGm.Update) *map[int64]strin
 	return &usersAutorized
 }
 
-func (tg *Tg) authorized(next TG.HandlerFunc) TG.HandlerFunc {
-	return func(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
-		usersAutorized := tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)
-		for id := range *usersAutorized {
-			if (update.Message != nil) && (id == update.Message.From.ID) {
-				next(ctx, bot, update)
-			}
+func (tg *Tg) getChanInfo(ctx context.Context, bot *TG.Bot) string {
+	ids := make([]string, 0, 8)
+	titles := make([]string, 0, 8)
+	channels := make([]string, 0, 8)
+	ids = append(ids, tg.cfg.GetJsonAdmin().TgChannelID, tg.cfg.GetJsonAdmin().TgChatID)
+	for _, el := range tg.cfg.GetJsonUsers() {
+		ids = append(ids, el.TgChannelID, el.TgChatID)
+	}
+	for _, id := range ids {
+		chat, err := bot.GetChat(ctx, &TG.GetChatParams{
+			ChatID: id,
+		})
+		if err != nil {
+			titles = append(titles, "ERROR")
+
+		} else {
+			titles = append(titles, chat.Title)
 		}
 	}
+	for idx := range ids {
+		channels = append(channels, "["+ids[idx]+"] "+titles[idx]+"\n")
+	}
+	return strings.Join(channels, "")
 }
 
 func (tg *Tg) infoHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // /info
 	tg.log.LogDebug("infolHander(): %s", update.Message.Text)
 	cfgmsg := T.TS_APP_NAME + "=" + tg.cfg.GetEnvVal(T.TS_APP_NAME) + "\n" +
 		T.TS_APP_IP + "=" + tg.cfg.GetEnvVal(T.TS_APP_IP) + "\n" +
-		T.TS_LOG_LEVEL + "=" + tg.cfg.GetEnvVal(T.TS_LOG_LEVEL) + "\n" +
 		T.TS_APP_AUTOFORWARD + "=" + tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) + "\n" +
-		T.TS_APP_AUTODEL + "=" + tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) + "\n"
+		T.TS_APP_AUTODEL + "=" + tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) + "\n" +
+		T.TS_LOG_LEVEL + "=" + tg.cfg.GetEnvVal(T.TS_LOG_LEVEL) + "\n"
 	usersAutorized := tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)
+	admins := "Admins: " + fmt.Sprintf("%v", usersAutorized) + "\n"
+	channels := tg.getChanInfo(ctx, bot)
 	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
 		ChatID: update.Message.Chat.ID,
-		Text:   cfgmsg + "Admins: " + fmt.Sprintf("%v", usersAutorized),
+		Text:   cfgmsg + admins + channels,
 	})
 }
 
