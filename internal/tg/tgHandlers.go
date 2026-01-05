@@ -79,8 +79,8 @@ func (tg *Tg) infoHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 		T.TS_APP_AUTODEL + "=" + tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) + "\n" +
 		T.TS_LOG_LEVEL + "=" + tg.cfg.GetEnvVal(T.TS_LOG_LEVEL) + "\n"
 	usersAutorized := tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)
-	admins := "Admins: " + fmt.Sprintf("%v", usersAutorized) + "\n"
-	channels := tg.getChanInfo(ctx, bot)
+	admins := "Admins:\n" + fmt.Sprintf("%v", usersAutorized) + "\n"
+	channels := "Channels:\n" + tg.getChanInfo(ctx, bot) + "\n"
 	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
 		ChatID: update.Message.Chat.ID,
 		Text:   cfgmsg + admins + channels,
