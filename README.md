@@ -125,11 +125,8 @@ Commands in bot private chat, for registered users only:
   <a href="https://www.twitch.tv/mewendi" title="https://www.twitch.tv/mewendi">mewendi</a>
 |
 <br><br>
-<img style="margin-right: 50px;" width="20%" src="pic/dayopponent.jpg" title="dayopponent" alt="dayopponent">
-<img style="margin-bottom: 5px;" width="20%" src="pic/iksssy.jpg" title="iksssy" alt="iksssy">
-<img style="margin-left: 50px;"width="20%" src="pic/mewendi.jpg" title="mewendi" alt="mewendi">
+<img style="margin-right: 50px;" width="50%" src="pic/trio_katok.jpg" title="trio_katok" alt="trio_katok">
 </p>
-<br><br>
 
 ----
 ### **🔗 LINKS**
