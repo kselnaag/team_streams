@@ -24,13 +24,13 @@ type Ttv struct {
 	userIDs      []string
 	userNames    []string
 	offlineUsers []int
-	onlineUsers  []bool
+	onlineUsers  []time.Time
 }
 
 func NewTTVApp(cfg T.ICfg, log T.ILog, tg T.ITG) *Ttv {
 	alen := len(cfg.GetJsonUsers())
 	offlineUsers := make([]int, alen)
-	onlineUsers := make([]bool, alen)
+	onlineUsers := make([]time.Time, alen)
 	userIDs := make([]string, 0, alen)
 	userNames := make([]string, 0, alen)
 	for _, user := range cfg.GetJsonUsers() {
@@ -82,8 +82,8 @@ LabelUserOnline:
 	for i, el := range ttv.userIDs {
 		for _, elem := range respStream.Data.Streams {
 			if el == elem.UserID {
-				if !ttv.onlineUsers[i] {
-					ttv.onlineUsers[i] = true
+				if ttv.onlineUsers[i].IsZero() {
+					ttv.onlineUsers[i] = time.Now()
 					ttv.offlineUsers[i] = 0
 					ttv.log.LogInfo("ttvClient.GetStreams(): %s[%s] online, %v", elem.UserLogin, elem.UserID, ttvStreams)
 					go ttv.tg.TTVNotifyUserOnline(elem.UserID, ttvStreams)
@@ -91,14 +91,14 @@ LabelUserOnline:
 				continue LabelUserOnline
 			}
 		}
-		if ttv.onlineUsers[i] {
+		if !ttv.onlineUsers[i].IsZero() {
 			if ttv.offlineUsers[i] < OFFLINE_COUNTER {
 				ttv.offlineUsers[i]++
 			} else {
-				ttv.onlineUsers[i] = false
-				ttv.offlineUsers[i] = 0
 				ttv.log.LogInfo("ttvClient.GetStreams(): %s[%s] offline", ttv.userNames[i], ttv.userIDs[i])
-				go ttv.tg.TTVNotifyUserOffline(el)
+				go ttv.tg.TTVNotifyUserOffline(ttv.userIDs[i], ttv.userNames[i], time.Since(ttv.onlineUsers[i]))
+				ttv.onlineUsers[i] = time.Time{}
+				ttv.offlineUsers[i] = 0
 			}
 		}
 	}

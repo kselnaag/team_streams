@@ -386,14 +386,18 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 	}
 }
 
-func (tg *Tg) TTVNotifyUserOffline(ttvUserID string) {
+func (tg *Tg) TTVNotifyUserOffline(userID string, userName string, dur time.Duration) {
 	tg.mu.Lock()
 	defer tg.mu.Unlock()
-
-	tg.log.LogDebug("TGnotify() Offline:%s", ttvUserID)
+	_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
+		DisableNotification: true,
+		ChatID:              tg.cfg.GetJsonAdmin().TgChannelID,
+		Text:                fmt.Sprintf("%s went offline ~1h ago \nstream lasted: ~%v", userName, dur),
+	})
+	tg.log.LogDebug("TGnotify() Offline: %s[%s]", userName, userID)
 	if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
 		for i, el := range tg.cfg.GetJsonUsers() {
-			if el.TtvUserID == ttvUserID {
+			if el.TtvUserID == userID {
 				for _, elem := range tg.msgsToDel[i] {
 					_, _ = tg.bot.DeleteMessage(tg.ctx, &TG.DeleteMessageParams{
 						ChatID:    elem.ChanID,

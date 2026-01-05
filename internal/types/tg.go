@@ -1,9 +1,11 @@
 package types
 
+import "time"
+
 type ITG interface {
 	Start() func(error)
 	TTVNotifyUserOnline(string, [][4]string)
-	TTVNotifyUserOffline(string)
+	TTVNotifyUserOffline(string, string, time.Duration)
 }
 
 const (
