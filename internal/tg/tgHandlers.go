@@ -392,7 +392,7 @@ func (tg *Tg) TTVNotifyUserOffline(userID string, userName string, dur time.Dura
 	_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
 		DisableNotification: true,
 		ChatID:              tg.cfg.GetJsonAdmin().TgChannelID,
-		Text:                fmt.Sprintf("%s went offline ~1h ago \nstream lasted: ~%v", userName, dur),
+		Text:                fmt.Sprintf("%s went offline ~1h ago \nstream lasted ~%v \n ", userName, dur.Truncate(time.Second)),
 	})
 	tg.log.LogDebug("TGnotify() Offline: %s[%s]", userName, userID)
 	if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
