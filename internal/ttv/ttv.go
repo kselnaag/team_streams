@@ -96,7 +96,7 @@ LabelUserOnline:
 				ttv.offlineUsers[i]++
 			} else {
 				ttv.log.LogInfo("ttvClient.GetStreams(): %s[%s] offline", ttv.userNames[i], ttv.userIDs[i])
-				go ttv.tg.TTVNotifyUserOffline(ttv.userIDs[i], ttv.userNames[i], time.Now().Add(-time.Hour).Sub(ttv.onlineUsers[i]).Truncate(time.Second))
+				go ttv.tg.TTVNotifyUserOffline(ttv.userIDs[i], ttv.userNames[i], time.Since(ttv.onlineUsers[i].Add(time.Hour)).Truncate(time.Minute))
 				ttv.onlineUsers[i] = time.Time{}
 				ttv.offlineUsers[i] = 0
 			}
