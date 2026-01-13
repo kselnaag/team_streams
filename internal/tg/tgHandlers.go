@@ -66,7 +66,9 @@ func (tg *Tg) getChanInfo(ctx context.Context, bot *TG.Bot) string {
 		}
 	}
 	for idx := range ids {
-		channels = append(channels, "["+ids[idx]+"] "+titles[idx]+"\n")
+		if titles[idx] != "ERROR" {
+			channels = append(channels, "["+ids[idx]+"] "+titles[idx]+"\n")
+		}
 	}
 	return strings.Join(channels, "")
 }
