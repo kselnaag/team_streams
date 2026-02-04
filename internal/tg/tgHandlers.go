@@ -338,8 +338,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 					})
 				}
 				if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
-					idx = i
-					tg.msgsToDel[idx] = append(tg.msgsToDel[idx], delMsg{ChanID: tgUser.TgChannelID, MsgID: sentMsg.ID})
+					tg.msgsToDel[i] = append(tg.msgsToDel[i], delMsg{ChanID: tgUser.TgChannelID, MsgID: sentMsg.ID})
 				}
 			}
 		}
@@ -406,6 +405,7 @@ func (tg *Tg) TTVNotifyUserOffline(userID string, userName string, dur time.Dura
 						MessageID: elem.MsgID,
 					})
 				}
+				tg.msgsToDel[i] = tg.msgsToDel[i][:0]
 				break
 			}
 		}
@@ -421,6 +421,7 @@ func (tg *Tg) delallHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update
 				MessageID: elem.MsgID,
 			})
 		}
+		tg.msgsToDel[i] = tg.msgsToDel[i][:0]
 	}
 }
 
