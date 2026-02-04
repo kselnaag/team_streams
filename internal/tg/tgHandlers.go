@@ -394,7 +394,7 @@ func (tg *Tg) TTVNotifyUserOffline(userID string, userName string, dur time.Dura
 	_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
 		DisableNotification: true,
 		ChatID:              tg.cfg.GetJsonAdmin().TgChannelID,
-		Text:                fmt.Sprintf("%s went offline ~1h ago \nstream lasted ~%v", userName, dur.Truncate(time.Minute)),
+		Text:                fmt.Sprintf("%s went offline ~1h ago \nstream lasted ~%v", userName, dur),
 	})
 	tg.log.LogDebug("TGnotify() Offline: %s[%s]", userName, userID)
 	if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
@@ -490,44 +490,44 @@ func (tg *Tg) postHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 }
 
 func (tg *Tg) defaultHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // repost
-	tg.log.LogDebug("defaultHander(): ID:%d TEXT:%s", update.Message.ID, update.Message.Text)
-	if update.Message.ForwardOrigin != nil {
-		_, err := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
-			ChatID:     tg.cfg.GetJsonAdmin().TgChannelID,
-			FromChatID: update.Message.From.ID,
-			MessageID:  update.Message.ID,
-		})
-		if err != nil {
-			tg.log.LogDebug("defaultHandler() error: ChanID[%s]: %s", tg.cfg.GetJsonAdmin().TgChannelID, err.Error())
-			_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-				ChatID: update.Message.Chat.ID,
-				Text:   fmt.Sprintf("defaultHandler() forward error: %s", err.Error()),
-			})
-		}
-		channelID := fmt.Sprintf("%d", update.Message.From.ID)
-		for _, el := range tg.cfg.GetJsonUsers() {
-			if el.TgChannelID != channelID {
-				go func() {
-					_, err := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
-						ChatID:     el.TgChannelID,
-						FromChatID: update.Message.From.ID,
-						MessageID:  update.Message.ID,
-					})
-					if err != nil {
-						tg.log.LogDebug("defaultHandler() forward error: ChanID[%s] error: %s", el.TgChannelID, err.Error())
-						_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-							ChatID: tg.cfg.GetJsonAdmin().TgUserID,
-							Text:   fmt.Sprintf("defaultHandler() forward error: %s ID:%s", err.Error(), el.TgChannelID),
-						})
-					}
-				}()
-			}
-		}
-		return
-	}
-	tg.log.LogDebug("defaultHander(): command not found")
-	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-		ChatID: update.Message.Chat.ID,
-		Text:   "command not found",
-	})
+	/* 	tg.log.LogDebug("defaultHander(): ID:%d TEXT:%s", update.Message.ID, update.Message.Text)
+	   	if update.Message.ForwardOrigin != nil {
+	   		_, err := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
+	   			ChatID:     tg.cfg.GetJsonAdmin().TgChannelID,
+	   			FromChatID: update.Message.From.ID,
+	   			MessageID:  update.Message.ID,
+	   		})
+	   		if err != nil {
+	   			tg.log.LogDebug("defaultHandler() error: ChanID[%s]: %s", tg.cfg.GetJsonAdmin().TgChannelID, err.Error())
+	   			_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+	   				ChatID: update.Message.Chat.ID,
+	   				Text:   fmt.Sprintf("defaultHandler() forward error: %s", err.Error()),
+	   			})
+	   		}
+	   		channelID := fmt.Sprintf("%d", update.Message.From.ID)
+	   		for _, el := range tg.cfg.GetJsonUsers() {
+	   			if el.TgChannelID != channelID {
+	   				go func() {
+	   					_, err := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
+	   						ChatID:     el.TgChannelID,
+	   						FromChatID: update.Message.From.ID,
+	   						MessageID:  update.Message.ID,
+	   					})
+	   					if err != nil {
+	   						tg.log.LogDebug("defaultHandler() forward error: ChanID[%s] error: %s", el.TgChannelID, err.Error())
+	   						_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+	   							ChatID: tg.cfg.GetJsonAdmin().TgUserID,
+	   							Text:   fmt.Sprintf("defaultHandler() forward error: %s ID:%s", err.Error(), el.TgChannelID),
+	   						})
+	   					}
+	   				}()
+	   			}
+	   		}
+	   		return
+	   	}
+	   	tg.log.LogDebug("defaultHander(): command not found")
+	   	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+	   		ChatID: update.Message.Chat.ID,
+	   		Text:   "command not found",
+	   	}) */
 }
