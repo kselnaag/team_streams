@@ -210,52 +210,26 @@ func (tg *Tg) testHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 			Text:   fmt.Sprintf("command /teststream error: %s", errDEBUG.Error()),
 		})
 	}
-	switch tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) {
-	case T.AFORW_ON:
-		for _, el := range tg.cfg.GetJsonUsers() {
-			go func() {
-				fwdMsg, errON := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
-					ChatID:     el.TgChannelID,
-					FromChatID: admin.TgChannelID,
-					MessageID:  sentMsg.ID,
-				})
-				if errON != nil {
-					tg.log.LogDebug("testHandler() ON error: %s: ChanID[%s]", errON.Error(), el.TgChannelID)
-					_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-						ChatID: update.Message.Chat.ID,
-						Text:   fmt.Sprintf("command /teststream error: %s: ChanID[%s]", errON.Error(), el.TgChannelID),
-					})
-				}
-				if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
-					time.Sleep(10 * time.Second)
-					_, _ = tg.bot.DeleteMessage(tg.ctx, &TG.DeleteMessageParams{
-						ChatID:    el.TgChannelID,
-						MessageID: fwdMsg.ID,
-					})
-				}
-			}()
-		}
-		fallthrough
-	case T.AFORW_OFF:
-		fwdMsg, errOFF := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
-			ChatID:     admin.TgChatID, // for testing only
-			FromChatID: admin.TgChannelID,
-			MessageID:  sentMsg.ID,
-		})
-		if errOFF != nil {
-			tg.log.LogDebug("testHandler() OFF error: %s: ChanID[%s]", errOFF.Error(), admin.TgChatID)
-			_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-				ChatID: update.Message.Chat.ID,
-				Text:   fmt.Sprintf("command /teststream error: %s", errOFF.Error()),
+	for _, el := range tg.cfg.GetJsonUsers() {
+		go func() {
+			fwdMsg, errTest := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
+				ChatID:     el.TgChannelID,
+				FromChatID: admin.TgChannelID,
+				MessageID:  sentMsg.ID,
 			})
-		}
-		if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
+			if errTest != nil {
+				tg.log.LogDebug("testHandler() ON error: %s: ChanID[%s]", errTest.Error(), el.TgChannelID)
+				_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+					ChatID: update.Message.Chat.ID,
+					Text:   fmt.Sprintf("command /teststream error: %s: ChanID[%s]", errTest.Error(), el.TgChannelID),
+				})
+			}
 			time.Sleep(10 * time.Second)
 			_, _ = tg.bot.DeleteMessage(tg.ctx, &TG.DeleteMessageParams{
-				ChatID:    admin.TgChatID, // for testing only
+				ChatID:    el.TgChannelID,
 				MessageID: fwdMsg.ID,
 			})
-		}
+		}()
 	}
 }
 
