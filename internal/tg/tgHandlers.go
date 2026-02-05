@@ -238,8 +238,7 @@ func (tg *Tg) helpHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 		"/post [MSG] - send any MSG as notification to admin and all users\n" +
 		"/getadmins [ID] - show all admins in ID channel\n" +
 		"/sendmsg [ID] [MSG] - post MSG in ID channel\n" +
-		"/delall - delete all posted mesages\n" +
-		"Forward from any autorized user to bot - forward any post or message into bot private chat if you have rights bot resends it to admin and all users\n"
+		"/delall - delete all posted mesages\n"
 	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
 		ChatID: update.Message.Chat.ID,
 		Text:   msg,
