@@ -78,9 +78,9 @@ func (tg *Tg) errorHandler(err error) {
 
 func (tg *Tg) Start() func(err error) {
 	opts := []TG.Option{
+		TG.WithDefaultHandler(tg.defaultHandler),
 		TG.WithMiddlewares(tg.authorized),
 		TG.WithErrorsHandler(tg.errorHandler),
-		TG.WithDefaultHandler(tg.defaultHandler),
 	}
 	var err error
 	tg.bot, err = TG.New(tg.cfg.GetEnvVal(T.TG_BOT_TOKEN), opts...)

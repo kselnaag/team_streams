@@ -303,9 +303,10 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 						ChatID: tg.cfg.GetJsonAdmin().TgUserID,
 						Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_ON error: ChanID[%s]: %s", tgUser.TgChannelID, errON.Error()),
 					})
-				}
-				if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
-					tg.msgsToDel[i] = append(tg.msgsToDel[i], delMsg{ChanID: tgUser.TgChannelID, MsgID: sentMsg.ID})
+				} else {
+					if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
+						tg.msgsToDel[i] = append(tg.msgsToDel[i], delMsg{ChanID: tgUser.TgChannelID, MsgID: sentMsg.ID})
+					}
 				}
 			}
 		}
@@ -323,9 +324,10 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 							ChatID: tg.cfg.GetJsonAdmin().TgUserID,
 							Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_ON error: ChanID[%s]: %s", tgUser.TgChannelID, errON.Error()),
 						})
-					}
-					if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
-						tg.msgsToDel[idx] = append(tg.msgsToDel[idx], delMsg{ChanID: el.TgChannelID, MsgID: fwdMsg.ID})
+					} else {
+						if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
+							tg.msgsToDel[idx] = append(tg.msgsToDel[idx], delMsg{ChanID: el.TgChannelID, MsgID: fwdMsg.ID})
+						}
 					}
 				}()
 			}
@@ -342,12 +344,13 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 				ChatID: tg.cfg.GetJsonAdmin().TgUserID,
 				Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_OFF error: %s", errOFF.Error()),
 			})
-		}
-		if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
-			for i, el := range tg.cfg.GetJsonUsers() {
-				if el.TtvUserID == ttvUserID {
-					tg.msgsToDel[i] = append(tg.msgsToDel[i], delMsg{ChanID: tgUser.TgChannelID, MsgID: sentMsg.ID})
-					break
+		} else {
+			if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
+				for i, el := range tg.cfg.GetJsonUsers() {
+					if el.TtvUserID == ttvUserID {
+						tg.msgsToDel[i] = append(tg.msgsToDel[i], delMsg{ChanID: tgUser.TgChannelID, MsgID: sentMsg.ID})
+						break
+					}
 				}
 			}
 		}
@@ -458,50 +461,18 @@ func (tg *Tg) postHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 }
 
 func (tg *Tg) defaultHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
+	msg := update.Message
+	/* 	if msg == nil {
+		return
+	} */
 	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
 		ChatID: tg.cfg.GetJsonAdmin().TgUserID,
-		Text:   fmt.Sprintf("defaultHander(): ID:%d FROM:%s TEXT:%s", update.Message.ID, update.Message.From.Username, update.Message.Text),
+		Text:   fmt.Sprintf("defaultHander(): IN:%d ID:%d FROM:%s TEXT:%s", msg.Chat.ID, msg.ID, msg.From.Username, msg.Text),
 	})
-
-	// tg.log.LogDebug("defaultHander(): ID:%d FROM:%s TEXT:%s", update.Message.ID, update.Message.From.Username, update.Message.Text)
-	/* 	tg.log.LogDebug("defaultHander(): ID:%d TEXT:%s", update.Message.ID, update.Message.Text)
-	   	if update.Message.ForwardOrigin != nil {
-	   		_, err := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
-	   			ChatID:     tg.cfg.GetJsonAdmin().TgChannelID,
-	   			FromChatID: update.Message.From.ID,
-	   			MessageID:  update.Message.ID,
-	   		})
-	   		if err != nil {
-	   			tg.log.LogDebug("defaultHandler() error: ChanID[%s]: %s", tg.cfg.GetJsonAdmin().TgChannelID, err.Error())
-	   			_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-	   				ChatID: update.Message.Chat.ID,
-	   				Text:   fmt.Sprintf("defaultHandler() forward error: %s", err.Error()),
-	   			})
-	   		}
-	   		channelID := fmt.Sprintf("%d", update.Message.From.ID)
-	   		for _, el := range tg.cfg.GetJsonUsers() {
-	   			if el.TgChannelID != channelID {
-	   				go func() {
-	   					_, err := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
-	   						ChatID:     el.TgChannelID,
-	   						FromChatID: update.Message.From.ID,
-	   						MessageID:  update.Message.ID,
-	   					})
-	   					if err != nil {
-	   						tg.log.LogDebug("defaultHandler() forward error: ChanID[%s] error: %s", el.TgChannelID, err.Error())
-	   						_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-	   							ChatID: tg.cfg.GetJsonAdmin().TgUserID,
-	   							Text:   fmt.Sprintf("defaultHandler() forward error: %s ID:%s", err.Error(), el.TgChannelID),
-	   						})
-	   					}
-	   				}()
-	   			}
-	   		}
-	   		return
-	   	}
-	   	tg.log.LogDebug("defaultHander(): command not found")
-	   	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-	   		ChatID: update.Message.Chat.ID,
-	   		Text:   "command not found",
-	   	}) */
+	if msg.SenderChat != nil && msg.SenderChat.Type == TGm.ChatTypeChannel { // if msg.SenderChat.ID == -100123456789 { ... }
+		_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
+			ChatID:    msg.Chat.ID,
+			MessageID: msg.ID,
+		})
+	}
 }
