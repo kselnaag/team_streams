@@ -46,31 +46,26 @@ func (tg *Tg) getChatAdmins(channel string, update *TGm.Update) *map[int64]strin
 	return &usersAutorized
 }
 
-func (tg *Tg) getChanInfo(ctx context.Context, bot *TG.Bot) string {
-	ids := make([]string, 0, 8)
-	titles := make([]string, 0, 8)
-	channels := make([]string, 0, 8)
-	ids = append(ids, tg.cfg.GetJsonAdmin().TgChannelID, tg.cfg.GetJsonAdmin().TgChatID)
+func (tg *Tg) getChanInfo(ctx context.Context, bot *TG.Bot) *map[string]string {
+	infoMap := make(map[string]string, 10)
+	infoMap[tg.cfg.GetJsonAdmin().TgChannelID] = ""
+	infoMap[tg.cfg.GetJsonAdmin().TgChatID] = ""
 	for _, el := range tg.cfg.GetJsonUsers() {
-		ids = append(ids, el.TgChannelID, el.TgChatID)
+		infoMap[el.TgChannelID] = ""
+		infoMap[el.TgChatID] = ""
 	}
-	for _, id := range ids {
+	for key := range infoMap {
 		chat, err := bot.GetChat(ctx, &TG.GetChatParams{
-			ChatID: id,
+			ChatID: key,
 		})
 		if err != nil {
-			titles = append(titles, "ERROR")
+			infoMap[key] = "ERROR"
 
 		} else {
-			titles = append(titles, chat.Title)
+			infoMap[key] = chat.Title
 		}
 	}
-	for idx := range ids {
-		if titles[idx] != "ERROR" {
-			channels = append(channels, "["+ids[idx]+"] "+titles[idx]+"\n")
-		}
-	}
-	return strings.Join(channels, "")
+	return &infoMap
 }
 
 func (tg *Tg) infoHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // /info
@@ -80,9 +75,8 @@ func (tg *Tg) infoHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 		T.TS_APP_AUTOFORWARD + "=" + tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) + "\n" +
 		T.TS_APP_AUTODEL + "=" + tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) + "\n" +
 		T.TS_LOG_LEVEL + "=" + tg.cfg.GetEnvVal(T.TS_LOG_LEVEL) + "\n"
-	usersAutorized := tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)
-	admins := "Admins:\n" + fmt.Sprintf("%v", usersAutorized) + "\n"
-	channels := "Channels:\n" + tg.getChanInfo(ctx, bot) + "\n"
+	admins := "Admins:\n" + fmt.Sprintf("%v", tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)) + "\n"
+	channels := "Channels:\n" + fmt.Sprintf("%v", tg.getChanInfo(ctx, bot)) + "\n"
 	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
 		ChatID: update.Message.Chat.ID,
 		Text:   cfgmsg + admins + channels,
