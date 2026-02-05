@@ -32,7 +32,7 @@ type Tg struct {
 }
 
 func NewTGBot(cfg T.ICfg, log T.ILog) *Tg {
-	msgsToDel := make([][]delMsg, 0, len(cfg.GetJsonUsers()))
+	msgsToDel := make([][]delMsg, len(cfg.GetJsonUsers()))
 	for i := range msgsToDel {
 		msgsToDel[i] = make([]delMsg, 0, 4)
 	}
