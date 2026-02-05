@@ -458,7 +458,13 @@ func (tg *Tg) postHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 	})
 }
 
-func (tg *Tg) defaultHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // repost
+func (tg *Tg) defaultHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
+	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+		ChatID: tg.cfg.GetJsonAdmin().TgUserID,
+		Text:   fmt.Sprintf("defaultHander(): ID:%d FROM:%s TEXT:%s", update.Message.ID, update.Message.From.Username, update.Message.Text),
+	})
+
+	// tg.log.LogDebug("defaultHander(): ID:%d FROM:%s TEXT:%s", update.Message.ID, update.Message.From.Username, update.Message.Text)
 	/* 	tg.log.LogDebug("defaultHander(): ID:%d TEXT:%s", update.Message.ID, update.Message.Text)
 	   	if update.Message.ForwardOrigin != nil {
 	   		_, err := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
