@@ -322,7 +322,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 						tg.log.LogDebug("TTVUserOnlineNotify() FWD_ON error: %s: ChanID[%s]", errON.Error(), el.TgChannelID)
 						_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
 							ChatID: tg.cfg.GetJsonAdmin().TgUserID,
-							Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_ON error: ChanID[%s]: %s", tgUser.TgChannelID, errON.Error()),
+							Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_ON error: [%s]%s: %s", tgUser.TgChannelID, tgUser.Nickname, errON.Error()),
 						})
 					} else {
 						if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
@@ -342,7 +342,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 			tg.log.LogDebug("TTVnotify() FWD_OFF error: ChanID[%s]: %s", tgUser.TgChannelID, errOFF.Error())
 			_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
 				ChatID: tg.cfg.GetJsonAdmin().TgUserID,
-				Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_OFF error: %s", errOFF.Error()),
+				Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_OFF error: [%s]%s: %s", tgUser.TgChannelID, tgUser.Nickname, errOFF.Error()),
 			})
 		} else {
 			if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
