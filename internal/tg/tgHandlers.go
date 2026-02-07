@@ -14,11 +14,35 @@ import (
 
 func (tg *Tg) authorized(next TG.HandlerFunc) TG.HandlerFunc {
 	return func(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
-		usersAutorized := tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)
-		for id := range *usersAutorized {
-			if (update.Message != nil) && (id == update.Message.From.ID) {
-				next(ctx, bot, update)
+		if update.Message != nil {
+			msg := update.Message
+			if (len(msg.Text) > 0) && (msg.Text[0] == '/') {
+				usersAutorized := tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)
+				for id := range *usersAutorized {
+					if (update.Message.From.ID == id) && (update.Message.Chat.Type == TGm.ChatTypePrivate) {
+						next(ctx, bot, update)
+						return
+					}
+				}
+				return
 			}
+			next(ctx, bot, update)
+		}
+	}
+}
+
+func (tg *Tg) notifyAutoforwardDelete(next TG.HandlerFunc) TG.HandlerFunc {
+	return func(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
+		if update.Message != nil {
+			msg := update.Message
+			if ((msg.Chat.Type == TGm.ChatTypeSupergroup) || (msg.Chat.Type == TGm.ChatTypeGroup)) && msg.IsAutomaticForward && strings.Contains(msg.Text, " is online now!") {
+				_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
+					ChatID:    msg.Chat.ID,
+					MessageID: msg.ID,
+				})
+				return
+			}
+			next(ctx, bot, update)
 		}
 	}
 }
@@ -186,7 +210,7 @@ func (tg *Tg) testHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 	tg.log.LogDebug("testHandler() %s", update.Message.Text)
 	admin := tg.cfg.GetJsonAdmin()
 	msg := "(Тестовое уведомление)\n" +
-		"Возрадуйтесь братья и сестры!\n" + admin.Longname + " соизволил запустить стрим !\n\n" +
+		"Возрадуйтесь братья и сестры!\n" + admin.Longname + " is online now!\n\n" +
 		admin.Nickname + "  |  " + "Software and game development\n" +
 		"Пишем бота, смотрим стрим!\n\n" +
 		"https://www.twitch.tv/" + admin.Nickname
@@ -266,7 +290,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 			break
 		}
 	}
-	msg := tgUser.Longname + " is online !\n\n" +
+	msg := tgUser.Longname + " is online now!\n\n" +
 		ttvUser[1] + "  |  " + ttvUser[2] + "\n" +
 		ttvUser[3] + "\n\n" +
 		"https://www.twitch.tv/" + ttvUser[1]
@@ -461,18 +485,17 @@ func (tg *Tg) postHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 }
 
 func (tg *Tg) defaultHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
-	msg := update.Message
-	/* 	if msg == nil {
-		return
-	} */
-	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-		ChatID: tg.cfg.GetJsonAdmin().TgUserID,
-		Text:   fmt.Sprintf("defaultHander(): IN:%d ID:%d FROM:%s TEXT:%s", msg.Chat.ID, msg.ID, msg.From.Username, msg.Text),
-	})
-	if msg.SenderChat != nil && msg.SenderChat.Type == TGm.ChatTypeChannel { // if msg.SenderChat.ID == -100123456789 { ... }
-		_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
-			ChatID:    msg.Chat.ID,
-			MessageID: msg.ID,
+	/* if update.Message != nil {
+		msg := update.Message
+		_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+			ChatID: tg.cfg.GetJsonAdmin().TgUserID,
+			Text:   fmt.Sprintf("defaultHander(): TYPE:%s ID:%d FROM:%s TEXT:%s", msg.Chat.Type, msg.ID, msg.From.Username, msg.Text),
 		})
-	}
+		if ((msg.Chat.Type == TGm.ChatTypeSupergroup) || (msg.Chat.Type == TGm.ChatTypeGroup)) && msg.IsAutomaticForward {
+			_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
+				ChatID:    msg.Chat.ID,
+				MessageID: msg.ID,
+			})
+		}
+	} */
 }

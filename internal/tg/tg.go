@@ -78,8 +78,9 @@ func (tg *Tg) errorHandler(err error) {
 
 func (tg *Tg) Start() func(err error) {
 	opts := []TG.Option{
-		TG.WithDefaultHandler(tg.defaultHandler),
+		TG.WithMiddlewares(tg.notifyAutoforwardDelete),
 		TG.WithMiddlewares(tg.authorized),
+		TG.WithDefaultHandler(tg.defaultHandler),
 		TG.WithErrorsHandler(tg.errorHandler),
 	}
 	var err error
