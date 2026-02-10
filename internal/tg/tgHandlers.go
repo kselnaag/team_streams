@@ -36,7 +36,7 @@ func (tg *Tg) notifyAutoforwardDelete(next TG.HandlerFunc) TG.HandlerFunc {
 		if update.Message != nil {
 			msg := update.Message
 			if ((msg.Chat.Type == TGm.ChatTypeSupergroup) || (msg.Chat.Type == TGm.ChatTypeGroup)) && msg.IsAutomaticForward {
-				checkStr := "is online now!"
+				checkStr := "уже запустил(а) стрим!"
 				if msg.Photo != nil && strings.Contains(msg.Caption, checkStr) {
 					_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
 						ChatID:    msg.Chat.ID,
@@ -139,7 +139,7 @@ func (tg *Tg) testHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 	tg.log.LogDebug("testHandler() %s", update.Message.Text)
 	admin := tg.cfg.GetJsonAdmin()
 	msg := "(Тестовое уведомление)\n" +
-		"Возрадуйтесь братья и сестры!\n" + admin.Longname + " is online now!\n\n" +
+		"Возрадуйтесь братья и сестры!\n" + admin.Longname + " уже запустил(а) стрим!\n\n" +
 		admin.Nickname + "  |  " + "Software and game development\n" +
 		"Пишем бота, смотрим стрим!\n\n" +
 		"https://www.twitch.tv/" + admin.Nickname
@@ -208,8 +208,8 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 	} else {
 		chatUrl = "https://t.me/" + chat.Username
 	}
-	notifyButton := [][]TGm.InlineKeyboardButton{{{Text: "В ТГ ЧАТ", URL: chatUrl}}}
-	msg := tgUser.Longname + " is online now!\n" +
+	notifyButton := [][]TGm.InlineKeyboardButton{{{Text: "В ТГ ГРУППУ", URL: chatUrl}}}
+	msg := tgUser.Longname + " уже запустил(а) стрим!\n" +
 		"https://www.twitch.tv/" + ttvUser[1]
 	fileData, _ := tg.fs.ReadFile("data/" + ttvUser[1] + "_pic.jpg")
 	_, errDEBUG := tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
