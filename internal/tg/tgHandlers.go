@@ -146,9 +146,10 @@ func (tg *Tg) testHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 
 	fileData, _ := tg.fs.ReadFile("data/" + admin.Nickname + "_pic.jpg")
 	sentMsg, errDEBUG := bot.SendPhoto(ctx, &TG.SendPhotoParams{
-		ChatID:  admin.TgChannelID,
-		Photo:   &TGm.InputFileUpload{Filename: admin.Nickname + "_pic.jpg", Data: bytes.NewReader(fileData)},
-		Caption: msg,
+		ChatID:                admin.TgChannelID,
+		Photo:                 &TGm.InputFileUpload{Filename: admin.Nickname + "_pic.jpg", Data: bytes.NewReader(fileData)},
+		Caption:               msg,
+		ShowCaptionAboveMedia: true,
 	})
 	if errDEBUG != nil {
 		tg.log.LogDebug("testHandler() DEBUG error: %s", errDEBUG.Error())
@@ -212,10 +213,11 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 		"https://www.twitch.tv/" + ttvUser[1]
 	fileData, _ := tg.fs.ReadFile("data/" + ttvUser[1] + "_pic.jpg")
 	_, errDEBUG := tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
-		ChatID:      tg.cfg.GetJsonAdmin().TgChannelID,
-		Photo:       &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
-		Caption:     msg,
-		ReplyMarkup: TGm.InlineKeyboardMarkup{InlineKeyboard: notifyButton},
+		ChatID:                tg.cfg.GetJsonAdmin().TgChannelID,
+		Photo:                 &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
+		Caption:               msg,
+		ShowCaptionAboveMedia: true,
+		ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyButton},
 	})
 	if errDEBUG != nil {
 		tg.log.LogDebug("TTVnotify() DEBUG error: ChanID[%s]: %s", tg.cfg.GetJsonAdmin().TgChannelID, errDEBUG.Error())
@@ -230,14 +232,14 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 	)
 	switch tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) {
 	case T.AFORW_ON:
-		// var idx int
 		for idx, el := range tg.cfg.GetJsonUsers() {
 			if el.TgUserID == tgUser.TgUserID {
 				sentMsg, errON = tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
-					ChatID:      tgUser.TgChannelID,
-					Photo:       &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
-					Caption:     msg,
-					ReplyMarkup: TGm.InlineKeyboardMarkup{InlineKeyboard: notifyButton},
+					ChatID:                tgUser.TgChannelID,
+					Photo:                 &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
+					Caption:               msg,
+					ShowCaptionAboveMedia: true,
+					ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyButton},
 				})
 				if errON != nil {
 					tg.log.LogDebug("TTVUserOnlineNotify() FWD_ON error: ChanID[%s]: %s", tgUser.TgChannelID, errON.Error())
@@ -276,10 +278,11 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 		}
 	case T.AFORW_OFF:
 		sentMsg, errOFF := tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
-			ChatID:      tgUser.TgChannelID,
-			Photo:       &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
-			Caption:     msg,
-			ReplyMarkup: TGm.InlineKeyboardMarkup{InlineKeyboard: notifyButton},
+			ChatID:                tgUser.TgChannelID,
+			Photo:                 &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
+			Caption:               msg,
+			ShowCaptionAboveMedia: true,
+			ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyButton},
 		})
 		if errOFF != nil {
 			tg.log.LogDebug("TTVnotify() FWD_OFF error: ChanID[%s]: %s", tgUser.TgChannelID, errOFF.Error())
