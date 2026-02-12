@@ -209,8 +209,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 		chatUrl = "https://t.me/" + chat.Username
 	}
 	notifyButton := [][]TGm.InlineKeyboardButton{{{Text: "В ТГ ГРУППУ", URL: chatUrl}}}
-	msg := tgUser.Longname + " уже запустил(а) стрим!\n" +
-		"https://www.twitch.tv/" + ttvUser[1]
+	msg := "https://www.twitch.tv/" + ttvUser[1] + "\n" + tgUser.Longname + " уже запустил(а) стрим!"
 	fileData, _ := tg.fs.ReadFile("data/" + ttvUser[1] + "_pic.jpg")
 	_, errDEBUG := tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
 		ChatID:                tg.cfg.GetJsonAdmin().TgChannelID,
