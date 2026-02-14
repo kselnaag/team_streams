@@ -142,7 +142,7 @@ func (tg *Tg) testHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 		"Возрадуйтесь братья и сестры!\n" + admin.Longname + " уже запустил(а) стрим!\n\n" +
 		admin.Nickname + "  |  " + "Software and game development\n" +
 		"Пишем бота, смотрим стрим!\n\n" +
-		"https://www.twitch.tv/" + admin.Nickname
+		"https://twitch.tv/" + admin.Nickname
 
 	fileData, _ := tg.fs.ReadFile("data/" + admin.Nickname + "_pic.jpg")
 	sentMsg, errDEBUG := bot.SendPhoto(ctx, &TG.SendPhotoParams{
@@ -209,7 +209,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 		chatUrl = "https://t.me/" + chat.Username
 	}
 	notifyButton := [][]TGm.InlineKeyboardButton{{{Text: "В ТГ ГРУППУ", URL: chatUrl}}}
-	msg := "https://www.twitch.tv/" + ttvUser[1] + "\n" + tgUser.Longname + " уже запустил(а) стрим!"
+	msg := "\nhttps://twitch.tv/" + ttvUser[1] + "\n" + tgUser.Longname + " уже запустил(а) стрим!"
 	fileData, _ := tg.fs.ReadFile("data/" + ttvUser[1] + "_pic.jpg")
 	_, errDEBUG := tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
 		ChatID:                tg.cfg.GetJsonAdmin().TgChannelID,
