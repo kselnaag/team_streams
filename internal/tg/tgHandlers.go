@@ -208,15 +208,15 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 	} else {
 		chatUrl = "https://t.me/" + chat.Username
 	}
-	notifyButton := [][]TGm.InlineKeyboardButton{{{Text: "В ТГ ГРУППУ", URL: chatUrl}}}
-	msg := "\nhttps://twitch.tv/" + ttvUser[1] + "\n" + tgUser.Longname + " уже запустил(а) стрим!"
+	msg := tgUser.Longname + " уже запустил(а) стрим!" + "\n" + "https://twitch.tv/" + ttvUser[1]
+	notifyKeyboard := [][]TGm.InlineKeyboardButton{{{Text: "В ТГ ГРУППУ", URL: chatUrl}, {Text: "НА СТРИМ", URL: "https://twitch.tv/" + ttvUser[1]}}}
 	fileData, _ := tg.fs.ReadFile("data/" + ttvUser[1] + "_pic.jpg")
 	_, errDEBUG := tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
 		ChatID:                tg.cfg.GetJsonAdmin().TgChannelID,
 		Photo:                 &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
 		Caption:               msg,
 		ShowCaptionAboveMedia: true,
-		ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyButton},
+		ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyKeyboard},
 	})
 	if errDEBUG != nil {
 		tg.log.LogDebug("TTVnotify() DEBUG error: ChanID[%s]: %s", tg.cfg.GetJsonAdmin().TgChannelID, errDEBUG.Error())
@@ -238,7 +238,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 					Photo:                 &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
 					Caption:               msg,
 					ShowCaptionAboveMedia: true,
-					ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyButton},
+					ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyKeyboard},
 				})
 				if errON != nil {
 					tg.log.LogDebug("TTVUserOnlineNotify() FWD_ON error: ChanID[%s]: %s", tgUser.TgChannelID, errON.Error())
@@ -281,7 +281,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 			Photo:                 &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
 			Caption:               msg,
 			ShowCaptionAboveMedia: true,
-			ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyButton},
+			ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyKeyboard},
 		})
 		if errOFF != nil {
 			tg.log.LogDebug("TTVnotify() FWD_OFF error: ChanID[%s]: %s", tgUser.TgChannelID, errOFF.Error())
