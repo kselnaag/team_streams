@@ -1,0 +1,54 @@
+* [33m19021d1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m fix notify caption and add ToStream button below
+* [33med792b5[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix notify links margins
+* [33m4e9e5d4[m change iksssy pic
+* [33mb45d102[m move up twitch link in notify caption
+* [33m53e19d3[m fix notify next(in rus) + pics
+* [33m1f444f9[m change photo caption position to upwards
+* [33m8e7ee7d[m glogal fix of posting and deleting notify
+* [33m56ffa2d[m some chore with url and button
+* [33me20a979[m change Notify view + button
+* [33m851ae8e[m add notifyAutoForwardDelete processing func
+* [33m7855c73[m fix TTVUserNotify() error messages
+* [33mf84258b[m fix NotifyOffline() AUTODEL_ON null pointer dereference
+* [33m3c3d226[m fix AUTOFWD+AUTODEL_ON null pointer dereference
+* [33m2e6b0a2[m fix forward description in /help
+* [33me5f5d93[m add checkMsg in default handler
+* [33m0014db2[m fix channels view in /info
+* [33m41446b7[m fix teststream command
+* [33m287b79b[m fix commands description in README.md
+* [33m3d92eca[m fix offline del for msg slice
+* [33m3665434[m turn off DefaultHandler
+* [33m5617ec9[m fix offline notify timer
+* [33m4c75766[m fix Channel list in /info, del ERROR channels
+* [33m72ffecc[m fix timer calc in offline notify
+* [33m2d1e5b0[m fix online notify msg text
+* [33m372edba[m fix stream duration timer, forgot -1 hour
+* [33m7ca044e[m add run.sh script to split [build] and [run] functionality
+* [33m629544c[m fix timer in offline notify msg
+* [33m5041097[m add offline notification in admin channel
+* [33m6483116[m fix README.md stoilo foto
+* [33m2221cdf[m fix /info msg: \n, Channels
+* [33m6201da5[m add channels into /info
+* [33m39d056a[m fix notify messages !
+* [33mca3e5a5[m add /help command and fix README
+* [33m5f70980[m exec file size and threads optimization
+* [33mfbe0b2d[m return TS_APP_IP in /info
+* [33m89cf505[m fix log msgs for user online and offline
+* [33m6b5c3de[m change notify message
+* [33m05629ab[m fix README.md for autodel
+* [33m00ebe3d[m add autodelete feature
+* [33m28c26f4[m fix notify funcs and add embed pics
+* [33m6f2cc9f[m fix authorized logDebug strings
+* [33m70a1a97[m pre-alfa? first test
+* [33m619ac79[m fix post/repost Handlers
+* [33mfac1857[m fix README.md adding bot commands
+* [33m7b21616[m all TG handlers done
+* [33m9ba1173[m fix authroze and forward handlers, add README inspired chapter, teststream and ttvnotify handlers
+* [33mefaa26a[m add authorization and loglevel, autoforward, sendmsg Handlers
+* [33mf1bdf33[m adding handlers to TG module
+* [33mc21ea1a[m starting TG module
+* [33mabe7626[m finish basics of TTV module
+* [33meed463f[m starting TTV module
+* [33ma57ed37[m add project description in README.md
+* [33mb887a63[m configure main architecture of service
+* [33m9799d25[m Initial commit
