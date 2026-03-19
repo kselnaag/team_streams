@@ -74,9 +74,9 @@ LabelStart:
 		ttvClient.SetAppAccessToken(respToken.Data.AccessToken)
 		goto LabelStart
 	}
-	ttvStreams := make([][4]string, 0, len(ttv.cfg.GetJsonUsers()))
+	ttvStreams := make([]T.StreamInfoTTV, 0, len(ttv.cfg.GetJsonUsers()))
 	for _, elem := range respStream.Data.Streams {
-		ttvStreams = append(ttvStreams, [4]string{elem.UserID, elem.UserLogin, elem.GameName, elem.Title})
+		ttvStreams = append(ttvStreams, T.StreamInfoTTV{UserID: elem.UserID, UserLogin: elem.UserLogin, Game: elem.GameName, Title: elem.Title})
 	}
 LabelUserOnline:
 	for i, el := range ttv.userIDs {

@@ -181,14 +181,14 @@ func (tg *Tg) testHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 	}
 }
 
-func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
+func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams []T.StreamInfoTTV) {
 	tg.mu.Lock()
 	defer tg.mu.Unlock()
 
 	tg.log.LogDebug("TGnotify() Online:%s %v", ttvUserID, ttvStreams)
 	var (
 		tgUser  T.User
-		ttvUser [4]string // [4]string{elem.UserID, elem.UserLogin, elem.GameName, elem.Title}
+		ttvUser T.StreamInfoTTV
 		chatUrl string
 	)
 	for _, el := range tg.cfg.GetJsonUsers() {
@@ -198,7 +198,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 		}
 	}
 	for _, elem := range ttvStreams {
-		if elem[0] == ttvUserID {
+		if elem.UserID == ttvUserID {
 			ttvUser = elem
 			break
 		}
@@ -208,12 +208,12 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 	} else {
 		chatUrl = "https://t.me/" + chat.Username
 	}
-	msg := tgUser.Longname + " уже запустил(а) стрим!" + "\n" + "https://twitch.tv/" + ttvUser[1]
-	notifyKeyboard := [][]TGm.InlineKeyboardButton{{{Text: "В ТГ ГРУППУ", URL: chatUrl}, {Text: "НА СТРИМ", URL: "https://twitch.tv/" + ttvUser[1]}}}
-	fileData, _ := tg.fs.ReadFile("data/" + ttvUser[1] + "_pic.jpg")
+	msg := tgUser.Longname + " уже запустил(а) стрим!" + "\n" + "https://twitch.tv/" + ttvUser.UserLogin
+	notifyKeyboard := [][]TGm.InlineKeyboardButton{{{Text: "В ТГ ГРУППУ", URL: chatUrl}, {Text: "НА СТРИМ", URL: "https://twitch.tv/" + ttvUser.UserLogin}}}
+	fileData, _ := tg.fs.ReadFile("data/" + ttvUser.UserLogin + "_pic.jpg")
 	_, errDEBUG := tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
 		ChatID:                tg.cfg.GetJsonAdmin().TgChannelID,
-		Photo:                 &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
+		Photo:                 &TGm.InputFileUpload{Filename: ttvUser.UserLogin + "_pic.jpg", Data: bytes.NewReader(fileData)},
 		Caption:               msg,
 		ShowCaptionAboveMedia: true,
 		ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyKeyboard},
@@ -235,7 +235,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 			if el.TgUserID == tgUser.TgUserID {
 				sentMsg, errON = tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
 					ChatID:                tgUser.TgChannelID,
-					Photo:                 &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
+					Photo:                 &TGm.InputFileUpload{Filename: ttvUser.UserLogin + "_pic.jpg", Data: bytes.NewReader(fileData)},
 					Caption:               msg,
 					ShowCaptionAboveMedia: true,
 					ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyKeyboard},
@@ -265,7 +265,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 						tg.log.LogDebug("TTVUserOnlineNotify() FWD_ON error: %s: ChanID[%s]", errON.Error(), el.TgChannelID)
 						_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
 							ChatID: tg.cfg.GetJsonAdmin().TgUserID,
-							Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_ON error: [%s]%s: %s", tgUser.TgChannelID, tgUser.Nickname, errON.Error()),
+							Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_ON error: %s[%s]: %s", tgUser.Nickname, tgUser.TgChannelID, errON.Error()),
 						})
 					} else {
 						if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
@@ -278,7 +278,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 	case T.AFORW_OFF:
 		sentMsg, errOFF := tg.bot.SendPhoto(tg.ctx, &TG.SendPhotoParams{
 			ChatID:                tgUser.TgChannelID,
-			Photo:                 &TGm.InputFileUpload{Filename: ttvUser[1] + "_pic.jpg", Data: bytes.NewReader(fileData)},
+			Photo:                 &TGm.InputFileUpload{Filename: ttvUser.UserLogin + "_pic.jpg", Data: bytes.NewReader(fileData)},
 			Caption:               msg,
 			ShowCaptionAboveMedia: true,
 			ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyKeyboard},
@@ -287,7 +287,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams [][4]string) {
 			tg.log.LogDebug("TTVnotify() FWD_OFF error: ChanID[%s]: %s", tgUser.TgChannelID, errOFF.Error())
 			_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
 				ChatID: tg.cfg.GetJsonAdmin().TgUserID,
-				Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_OFF error: [%s]%s: %s", tgUser.TgChannelID, tgUser.Nickname, errOFF.Error()),
+				Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_OFF error: %s[%s]: %s", tgUser.Nickname, tgUser.TgChannelID, errOFF.Error()),
 			})
 		} else {
 			if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
@@ -310,7 +310,7 @@ func (tg *Tg) TTVNotifyUserOffline(userID string, userName string, dur time.Dura
 		ChatID:              tg.cfg.GetJsonAdmin().TgChannelID,
 		Text:                fmt.Sprintf("%s went offline ~1h ago \nstream lasted ~%v", userName, dur),
 	})
-	tg.log.LogDebug("TGnotify() Offline: [%s]%s", userID, userName)
+	tg.log.LogDebug("TGnotify() Offline: %s[%s]", userName, userID)
 	if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
 		for idx, el := range tg.cfg.GetJsonUsers() {
 			if el.TtvUserID == userID {
