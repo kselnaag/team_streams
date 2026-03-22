@@ -12,175 +12,6 @@ import (
 	TGm "github.com/go-telegram/bot/models"
 )
 
-func (tg *Tg) authorized(next TG.HandlerFunc) TG.HandlerFunc {
-	return func(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
-		if update.Message != nil {
-			msg := update.Message
-			if (len(msg.Text) > 0) && (msg.Text[0] == '/') {
-				usersAutorized := tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)
-				for id := range *usersAutorized {
-					if (update.Message.From.ID == id) && (update.Message.Chat.Type == TGm.ChatTypePrivate) {
-						next(ctx, bot, update)
-						return
-					}
-				}
-				return
-			}
-			next(ctx, bot, update)
-		}
-	}
-}
-
-func (tg *Tg) notifyAutoforwardDelete(next TG.HandlerFunc) TG.HandlerFunc {
-	return func(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
-		if update.Message != nil {
-			msg := update.Message
-			if ((msg.Chat.Type == TGm.ChatTypeSupergroup) || (msg.Chat.Type == TGm.ChatTypeGroup)) && msg.IsAutomaticForward {
-				checkStr := "уже запустил(а) стрим!"
-				if msg.Photo != nil && strings.Contains(msg.Caption, checkStr) {
-					_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
-						ChatID:    msg.Chat.ID,
-						MessageID: msg.ID,
-					})
-					return
-				}
-				if strings.Contains(msg.Text, checkStr) {
-					_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
-						ChatID:    msg.Chat.ID,
-						MessageID: msg.ID,
-					})
-					return
-				}
-			}
-			next(ctx, bot, update)
-		}
-	}
-}
-
-func (tg *Tg) getChatAdmins(channel string, update *TGm.Update) *map[int64]string {
-	admins, err := tg.bot.GetChatAdministrators(tg.ctx, &TG.GetChatAdministratorsParams{ChatID: channel})
-	if err != nil {
-		err = fmt.Errorf("TG.getChatAdmins() ChatID:%s error: %w", channel, err)
-		tg.log.LogError(err)
-		_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   err.Error(),
-		})
-		return &map[int64]string{}
-	}
-	usersAutorized := make(map[int64]string, len(admins))
-	for _, el := range admins {
-		if el.Owner != nil && !el.Owner.User.IsBot {
-			usersAutorized[el.Owner.User.ID] = el.Owner.User.FirstName + "*"
-		}
-		if el.Administrator != nil && !el.Administrator.User.IsBot {
-			usersAutorized[el.Administrator.User.ID] = el.Administrator.User.FirstName
-		}
-	}
-	return &usersAutorized
-}
-
-func (tg *Tg) getChanInfo(ctx context.Context, bot *TG.Bot) *map[string]string {
-	infoMap := make(map[string]string, 10)
-	infoMap[tg.cfg.GetJsonAdmin().TgChannelID] = ""
-	infoMap[tg.cfg.GetJsonAdmin().TgChatID] = ""
-	for _, el := range tg.cfg.GetJsonUsers() {
-		infoMap[el.TgChannelID] = ""
-		infoMap[el.TgChatID] = ""
-	}
-	for key := range infoMap {
-		chat, err := bot.GetChat(ctx, &TG.GetChatParams{
-			ChatID: key,
-		})
-		if err != nil {
-			infoMap[key] = "ERROR"
-
-		} else {
-			infoMap[key] = chat.Title
-		}
-	}
-	return &infoMap
-}
-
-func (tg *Tg) infoHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // /info
-	tg.log.LogDebug("infolHander(): %s", update.Message.Text)
-	cfgmsg := T.TS_APP_NAME + "=" + tg.cfg.GetEnvVal(T.TS_APP_NAME) + "\n" +
-		T.TS_APP_IP + "=" + tg.cfg.GetEnvVal(T.TS_APP_IP) + "\n" +
-		T.TS_APP_AUTOFORWARD + "=" + tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) + "\n" +
-		T.TS_APP_AUTODEL + "=" + tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) + "\n" +
-		T.TS_LOG_LEVEL + "=" + tg.cfg.GetEnvVal(T.TS_LOG_LEVEL) + "\n"
-	admins := "Admins:\n" + fmt.Sprintf("%v", tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)) + "\n"
-	channels := "Channels:\n" + fmt.Sprintf("%v", tg.getChanInfo(ctx, bot)) + "\n"
-	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-		ChatID: update.Message.Chat.ID,
-		Text:   cfgmsg + admins + channels,
-	})
-}
-
-func (tg *Tg) helpHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // /help
-	tg.log.LogDebug("helplHander(): %s", update.Message.Text)
-	msg := "/help - show all commands in admin menu (this command)\n" +
-		"/info - show app info: app_name, app_IP, loglevel, autoforward, admins, etc.\n" +
-		"/loglevel [LVL] - set level of logs to dev purposes (LVL: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default))\n" +
-		"/teststream - post test message (template) to admin and all users\n" +
-		"/autoforward [FWD] - set forwarding mode for twich notification (FWD: DEBUG-admin channel only, OFF-admin and user channel, ON-send to all)\n" +
-		"/autodel [DEL] - set autodelete for notification message when stream is offline (DEL: OFF, ON)\n" +
-		"/post [MSG] - send any MSG as notification to admin and all users\n" +
-		"/getadmins [ID] - show all admins in ID channel\n" +
-		"/sendmsg [ID] [MSG] - post MSG in ID channel\n" +
-		"/delall - delete all posted mesages\n"
-	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-		ChatID: update.Message.Chat.ID,
-		Text:   msg,
-	})
-}
-
-func (tg *Tg) testHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // /teststream
-	tg.log.LogDebug("testHandler() %s", update.Message.Text)
-	admin := tg.cfg.GetJsonAdmin()
-	msg := "(Тестовое уведомление)\n" +
-		"Возрадуйтесь братья и сестры!\n" + admin.Longname + " уже запустил(а) стрим!\n\n" +
-		admin.Nickname + "  |  " + "Software and game development\n" +
-		"Пишем бота, смотрим стрим!\n\n" +
-		"https://twitch.tv/" + admin.Nickname
-
-	fileData, _ := tg.fs.ReadFile("data/" + admin.Nickname + "_pic.jpg")
-	sentMsg, errDEBUG := bot.SendPhoto(ctx, &TG.SendPhotoParams{
-		ChatID:                admin.TgChannelID,
-		Photo:                 &TGm.InputFileUpload{Filename: admin.Nickname + "_pic.jpg", Data: bytes.NewReader(fileData)},
-		Caption:               msg,
-		ShowCaptionAboveMedia: true,
-	})
-	if errDEBUG != nil {
-		tg.log.LogDebug("testHandler() DEBUG error: %s", errDEBUG.Error())
-		_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   fmt.Sprintf("command /teststream error: %s", errDEBUG.Error()),
-		})
-	}
-	for _, el := range tg.cfg.GetJsonUsers() {
-		go func() {
-			fwdMsg, errTest := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
-				ChatID:     el.TgChannelID,
-				FromChatID: admin.TgChannelID,
-				MessageID:  sentMsg.ID,
-			})
-			if errTest != nil {
-				tg.log.LogDebug("testHandler() ON error: %s: ChanID[%s]", errTest.Error(), el.TgChannelID)
-				_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-					ChatID: update.Message.Chat.ID,
-					Text:   fmt.Sprintf("command /teststream error: %s: ChanID[%s]", errTest.Error(), el.TgChannelID),
-				})
-			}
-			time.Sleep(10 * time.Second)
-			_, _ = tg.bot.DeleteMessage(tg.ctx, &TG.DeleteMessageParams{
-				ChatID:    el.TgChannelID,
-				MessageID: fwdMsg.ID,
-			})
-		}()
-	}
-}
-
 func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams []T.StreamInfoTTV) {
 	tg.mu.Lock()
 	defer tg.mu.Unlock()
@@ -189,7 +20,6 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams []T.StreamInfoTTV
 	var (
 		tgUser  T.User
 		ttvUser T.StreamInfoTTV
-		chatUrl string
 	)
 	for _, el := range tg.cfg.GetJsonUsers() {
 		if el.TtvUserID == ttvUserID {
@@ -203,10 +33,9 @@ func (tg *Tg) TTVNotifyUserOnline(ttvUserID string, ttvStreams []T.StreamInfoTTV
 			break
 		}
 	}
-	if chat, errCh := tg.bot.GetChat(tg.ctx, &TG.GetChatParams{ChatID: tgUser.TgChatID}); errCh != nil {
-		chatUrl = "https://t.me/"
-	} else {
-		chatUrl = "https://t.me/" + chat.Username
+	chatUrl := "https://t.me/"
+	if chat, errCh := tg.bot.GetChat(tg.ctx, &TG.GetChatParams{ChatID: tgUser.TgChatID}); errCh == nil {
+		chatUrl += chat.Username
 	}
 	msg := tgUser.Longname + " уже запустил(а) стрим!" + "\n" + "https://twitch.tv/" + ttvUser.UserLogin
 	notifyKeyboard := [][]TGm.InlineKeyboardButton{{{Text: "В ТГ ГРУППУ", URL: chatUrl}, {Text: "НА СТРИМ", URL: "https://twitch.tv/" + ttvUser.UserLogin}}}
@@ -325,6 +154,85 @@ func (tg *Tg) TTVNotifyUserOffline(userID string, userName string, dur time.Dura
 			}
 		}
 	}
+}
+
+func (tg *Tg) testHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // /teststream
+	tg.log.LogDebug("testHandler() %s", update.Message.Text)
+	admin := tg.cfg.GetJsonAdmin()
+	msg := "(Тестовое уведомление)\n" +
+		"Возрадуйтесь братья и сестры!\n" + admin.Longname + " уже запустил(а) стрим!\n\n" +
+		admin.Nickname + "  |  " + "Software and game development\n" +
+		"Пишем бота, смотрим стрим!\n\n" +
+		"https://twitch.tv/" + admin.Nickname
+
+	fileData, _ := tg.fs.ReadFile("data/" + admin.Nickname + "_pic.jpg")
+	sentMsg, errDEBUG := bot.SendPhoto(ctx, &TG.SendPhotoParams{
+		ChatID:                admin.TgChannelID,
+		Photo:                 &TGm.InputFileUpload{Filename: admin.Nickname + "_pic.jpg", Data: bytes.NewReader(fileData)},
+		Caption:               msg,
+		ShowCaptionAboveMedia: true,
+	})
+	if errDEBUG != nil {
+		tg.log.LogDebug("testHandler() DEBUG error: %s", errDEBUG.Error())
+		_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+			ChatID: update.Message.Chat.ID,
+			Text:   fmt.Sprintf("command /teststream error: %s", errDEBUG.Error()),
+		})
+	}
+	for _, el := range tg.cfg.GetJsonUsers() {
+		go func() {
+			fwdMsg, errTest := bot.ForwardMessage(ctx, &TG.ForwardMessageParams{
+				ChatID:     el.TgChannelID,
+				FromChatID: admin.TgChannelID,
+				MessageID:  sentMsg.ID,
+			})
+			if errTest != nil {
+				tg.log.LogDebug("testHandler() ON error: %s: ChanID[%s]", errTest.Error(), el.TgChannelID)
+				_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+					ChatID: update.Message.Chat.ID,
+					Text:   fmt.Sprintf("command /teststream error: %s: ChanID[%s]", errTest.Error(), el.TgChannelID),
+				})
+			}
+			time.Sleep(10 * time.Second)
+			_, _ = tg.bot.DeleteMessage(tg.ctx, &TG.DeleteMessageParams{
+				ChatID:    el.TgChannelID,
+				MessageID: fwdMsg.ID,
+			})
+		}()
+	}
+}
+
+func (tg *Tg) infoHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // /info
+	tg.log.LogDebug("infolHander(): %s", update.Message.Text)
+	cfgmsg := T.TS_APP_NAME + "=" + tg.cfg.GetEnvVal(T.TS_APP_NAME) + "\n" +
+		T.TS_APP_IP + "=" + tg.cfg.GetEnvVal(T.TS_APP_IP) + "\n" +
+		T.TS_APP_AUTOFORWARD + "=" + tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) + "\n" +
+		T.TS_APP_AUTODEL + "=" + tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) + "\n" +
+		T.TS_LOG_LEVEL + "=" + tg.cfg.GetEnvVal(T.TS_LOG_LEVEL) + "\n"
+	admins := "Admins:\n" + fmt.Sprintf("%v", tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)) + "\n"
+	channels := "Channels:\n" + fmt.Sprintf("%v", tg.getChanInfo(ctx, bot)) + "\n"
+	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+		ChatID: update.Message.Chat.ID,
+		Text:   cfgmsg + admins + channels,
+	})
+}
+
+func (tg *Tg) helpHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // /help
+	tg.log.LogDebug("helplHander(): %s", update.Message.Text)
+	msg := "/help - show all commands in admin menu (this command)\n" +
+		"/info - show app info: app_name, app_IP, loglevel, autoforward, admins, etc.\n" +
+		"/loglevel [LVL] - set level of logs to dev purposes (LVL: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default))\n" +
+		"/teststream - post test message (template) to admin and all users\n" +
+		"/autoforward [FWD] - set forwarding mode for twich notification (FWD: DEBUG-admin channel only, OFF-admin and user channel, ON-send to all)\n" +
+		"/autodel [DEL] - set autodelete for notification message when stream is offline (DEL: OFF, ON)\n" +
+		"/post [MSG] - send any MSG as notification to admin and all users\n" +
+		"/getadmins [ID] - show all admins in ID channel\n" +
+		"/sendmsg [ID] [MSG] - post MSG in ID channel\n" +
+		"/delall - delete all posted mesages\n"
+	_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+		ChatID: update.Message.Chat.ID,
+		Text:   msg,
+	})
 }
 
 func (tg *Tg) loglevelHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) { // /loglevel
@@ -502,20 +410,4 @@ func (tg *Tg) postHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) 
 		ChatID: update.Message.Chat.ID,
 		Text:   "command /post should use Message as 1 flag",
 	})
-}
-
-func (tg *Tg) defaultHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
-	/* if update.Message != nil {
-		msg := update.Message
-		_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-			ChatID: tg.cfg.GetJsonAdmin().TgUserID,
-			Text:   fmt.Sprintf("defaultHander(): TYPE:%s ID:%d FROM:%s TEXT:%s", msg.Chat.Type, msg.ID, msg.From.Username, msg.Text),
-		})
-		if ((msg.Chat.Type == TGm.ChatTypeSupergroup) || (msg.Chat.Type == TGm.ChatTypeGroup)) && msg.IsAutomaticForward {
-			_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
-				ChatID:    msg.Chat.ID,
-				MessageID: msg.ID,
-			})
-		}
-	} */
 }

@@ -6,12 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"syscall"
 	T "team_streams/internal/types"
 	"team_streams/pic"
 
 	TG "github.com/go-telegram/bot"
+	TGm "github.com/go-telegram/bot/models"
 )
 
 var _ T.ITG = (*Tg)(nil)
@@ -74,6 +76,112 @@ func (tg *Tg) errorHandler(err error) {
 		ChatID: tg.cfg.GetJsonAdmin().TgUserID,
 		Text:   "TG errorHandler(): " + err.Error(),
 	})
+}
+
+func (tg *Tg) getChatAdmins(channel string, update *TGm.Update) *map[int64]string {
+	admins, err := tg.bot.GetChatAdministrators(tg.ctx, &TG.GetChatAdministratorsParams{ChatID: channel})
+	if err != nil {
+		err = fmt.Errorf("TG.getChatAdmins() ChatID:%s error: %w", channel, err)
+		tg.log.LogError(err)
+		_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
+			ChatID: update.Message.Chat.ID,
+			Text:   err.Error(),
+		})
+		return &map[int64]string{}
+	}
+	usersAutorized := make(map[int64]string, len(admins))
+	for _, el := range admins {
+		if el.Owner != nil && !el.Owner.User.IsBot {
+			usersAutorized[el.Owner.User.ID] = el.Owner.User.FirstName + "*"
+		}
+		if el.Administrator != nil && !el.Administrator.User.IsBot {
+			usersAutorized[el.Administrator.User.ID] = el.Administrator.User.FirstName
+		}
+	}
+	return &usersAutorized
+}
+
+func (tg *Tg) getChanInfo(ctx context.Context, bot *TG.Bot) *map[string]string {
+	infoMap := make(map[string]string, 10)
+	infoMap[tg.cfg.GetJsonAdmin().TgChannelID] = ""
+	infoMap[tg.cfg.GetJsonAdmin().TgChatID] = ""
+	for _, el := range tg.cfg.GetJsonUsers() {
+		infoMap[el.TgChannelID] = ""
+		infoMap[el.TgChatID] = ""
+	}
+	for key := range infoMap {
+		chat, err := bot.GetChat(ctx, &TG.GetChatParams{
+			ChatID: key,
+		})
+		if err != nil {
+			infoMap[key] = "ERROR"
+
+		} else {
+			infoMap[key] = chat.Title
+		}
+	}
+	return &infoMap
+}
+
+func (tg *Tg) authorized(next TG.HandlerFunc) TG.HandlerFunc {
+	return func(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
+		if update.Message != nil {
+			msg := update.Message
+			if (len(msg.Text) > 0) && (msg.Text[0] == '/') {
+				usersAutorized := tg.getChatAdmins(tg.cfg.GetJsonAdmin().TgChannelID, update)
+				for id := range *usersAutorized {
+					if (update.Message.From.ID == id) && (update.Message.Chat.Type == TGm.ChatTypePrivate) {
+						next(ctx, bot, update)
+						return
+					}
+				}
+				return
+			}
+			next(ctx, bot, update)
+		}
+	}
+}
+
+func (tg *Tg) notifyAutoforwardDelete(next TG.HandlerFunc) TG.HandlerFunc {
+	return func(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
+		if update.Message != nil {
+			msg := update.Message
+			if ((msg.Chat.Type == TGm.ChatTypeSupergroup) || (msg.Chat.Type == TGm.ChatTypeGroup)) && msg.IsAutomaticForward {
+				checkStr := "уже запустил(а) стрим!"
+				if msg.Photo != nil && strings.Contains(msg.Caption, checkStr) {
+					_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
+						ChatID:    msg.Chat.ID,
+						MessageID: msg.ID,
+					})
+					return
+				}
+				if strings.Contains(msg.Text, checkStr) {
+					_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
+						ChatID:    msg.Chat.ID,
+						MessageID: msg.ID,
+					})
+					return
+				}
+			}
+			next(ctx, bot, update)
+		}
+	}
+}
+
+func (tg *Tg) defaultHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
+	/* if update.Message != nil {
+		msg := update.Message
+		_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
+			ChatID: tg.cfg.GetJsonAdmin().TgUserID,
+			Text:   fmt.Sprintf("defaultHander(): TYPE:%s ID:%d FROM:%s TEXT:%s", msg.Chat.Type, msg.ID, msg.From.Username, msg.Text),
+		})
+		if ((msg.Chat.Type == TGm.ChatTypeSupergroup) || (msg.Chat.Type == TGm.ChatTypeGroup)) && msg.IsAutomaticForward {
+			_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
+				ChatID:    msg.Chat.ID,
+				MessageID: msg.ID,
+			})
+		}
+	} */
 }
 
 func (tg *Tg) Start() func(err error) {
