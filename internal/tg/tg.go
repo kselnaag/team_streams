@@ -168,21 +168,7 @@ func (tg *Tg) notifyAutoforwardDelete(next TG.HandlerFunc) TG.HandlerFunc {
 	}
 }
 
-func (tg *Tg) defaultHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) {
-	/* if update.Message != nil {
-		msg := update.Message
-		_, _ = bot.SendMessage(ctx, &TG.SendMessageParams{
-			ChatID: tg.cfg.GetJsonAdmin().TgUserID,
-			Text:   fmt.Sprintf("defaultHander(): TYPE:%s ID:%d FROM:%s TEXT:%s", msg.Chat.Type, msg.ID, msg.From.Username, msg.Text),
-		})
-		if ((msg.Chat.Type == TGm.ChatTypeSupergroup) || (msg.Chat.Type == TGm.ChatTypeGroup)) && msg.IsAutomaticForward {
-			_, _ = bot.DeleteMessage(ctx, &TG.DeleteMessageParams{
-				ChatID:    msg.Chat.ID,
-				MessageID: msg.ID,
-			})
-		}
-	} */
-}
+func (tg *Tg) defaultHandler(ctx context.Context, bot *TG.Bot, update *TGm.Update) {}
 
 func (tg *Tg) Start() func(err error) {
 	opts := []TG.Option{
@@ -201,11 +187,7 @@ func (tg *Tg) Start() func(err error) {
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_LOGLEVEL, TG.MatchTypeCommandStartOnly, tg.loglevelHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_AUTOFORWARD, TG.MatchTypeCommandStartOnly, tg.forwardHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_AUTODEL, TG.MatchTypeCommandStartOnly, tg.delHandler)
-	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_TESTSTREAM, TG.MatchTypeCommandStartOnly, tg.testHandler)
-	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_POST, TG.MatchTypeCommandStartOnly, tg.postHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_DELALL, TG.MatchTypeCommandStartOnly, tg.delallHandler)
-	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_GETADMINS, TG.MatchTypeCommandStartOnly, tg.getadminsHandler)
-	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_SENDMSG, TG.MatchTypeCommandStartOnly, tg.sendmsgHandler)
 	tg.bot.RegisterHandler(TG.HandlerTypeMessageText, T.COMMAND_HELP, TG.MatchTypeCommandStartOnly, tg.helpHandler)
 
 	var ctxCancelTGbot context.CancelFunc

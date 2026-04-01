@@ -106,12 +106,8 @@ Commands in bot private chat, for registered users only:
 - /help - show all commands in admin menu
 - /info - show app info: app_name, app_IP, loglevel, autoforward, admins, etc.
 - /loglevel [LVL] - set level of logs to dev purposes (LVL: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default))
-- /teststream - post test message (template) to admin and all users; deletes it while some time pass
 - /autoforward [FWD] - set forwarding mode for twich notification (FWD: DEBUG-admin channel only, OFF-admin and user channel, ON-send to all)
 - /autodel [DEL] - set autodelete for notification message when stream is offline (DEL: OFF, ON)
-- /post [MSG] - send any MSG as notification to admin and all users
-- /getadmins [ID] - show all admins in ID channel
-- /sendmsg [ID] [MSG] - post MSG in ID channel
 - /delall - delete all posted mesages
 
 ## 🦋 Inspired by STOILO_TEAM
@@ -124,7 +120,7 @@ Commands in bot private chat, for registered users only:
   <a href="https://www.twitch.tv/mewendi" title="https://www.twitch.tv/mewendi">mewendi</a>
 |
 <br><br>
-<img style="margin-right: 50px;" width="50%" src="pic/trio_katok.jpg" title="trio_katok" alt="trio_katok">
+<img style="display: block; margin: 0 auto;" width="50%" src="pic/trio_katok.jpg" title="trio_katok" alt="trio_katok">
 </p>
 
 ----

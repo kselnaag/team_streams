@@ -4,7 +4,7 @@ import "time"
 
 type ITG interface {
 	Start() func(error)
-	TTVNotifyUserOnline(string, []StreamInfoTTV)
+	TTVNotifyUserOnline(StreamInfoTTV)
 	TTVNotifyUserOffline(string, string, time.Duration)
 }
 
