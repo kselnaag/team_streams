@@ -30,14 +30,15 @@ func (tg *Tg) TTVNotifyUserOnline(ttvStream T.StreamInfoTTV) {
 	msg := tgUser.Longname + " уже запустил(а) стрим!" + "\n" + "https://twitch.tv/" + ttvStream.UserLogin
 	notifyKeyboard := [][]TGm.InlineKeyboardButton{{{Text: "В ТГ ГРУППУ", URL: chatUrl}, {Text: "НА СТРИМ", URL: "https://twitch.tv/" + ttvStream.UserLogin}}}
 	fileData, _ := tg.fs.ReadFile("data/" + ttvStream.UserLogin + "_pic.jpg")
-	photoParams := &TG.SendPhotoParams{
+	fileUpload := TGm.InputFileUpload{Filename: ttvStream.UserLogin + "_pic.jpg", Data: bytes.NewReader(fileData)}
+	photoParams := TG.SendPhotoParams{
 		ChatID:                tg.cfg.GetJsonAdmin().TgChannelID,
-		Photo:                 &TGm.InputFileUpload{Filename: ttvStream.UserLogin + "_pic.jpg", Data: bytes.NewReader(fileData)},
+		Photo:                 &fileUpload,
 		Caption:               msg,
 		ShowCaptionAboveMedia: true,
 		ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyKeyboard},
 	}
-	if _, errDEBUG := tg.bot.SendPhoto(tg.ctx, photoParams); errDEBUG != nil { // TS_APP_AUTOFORWARD == "DEBUG"
+	if _, errDEBUG := tg.bot.SendPhoto(tg.ctx, &photoParams); errDEBUG != nil { // TS_APP_AUTOFORWARD == "DEBUG"
 		tg.log.LogDebug("TTVnotify() DEBUG error: ChanID[%s]: %s", tg.cfg.GetJsonAdmin().TgChannelID, errDEBUG.Error())
 		_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
 			ChatID: tg.cfg.GetJsonAdmin().TgUserID,
@@ -49,8 +50,16 @@ func (tg *Tg) TTVNotifyUserOnline(ttvStream T.StreamInfoTTV) {
 		errOFF, errON   error
 	)
 	if (tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) == T.ADEL_OFF) || (tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) == T.AFORW_ON) { // TS_APP_AUTOFORWARD == "OFF"
-		photoParams.ChatID = tgUser.TgChannelID
-		if sentMsg, errOFF = tg.bot.SendPhoto(tg.ctx, photoParams); errOFF != nil {
+		fileData, _ = tg.fs.ReadFile("data/" + ttvStream.UserLogin + "_pic.jpg")
+		fileUpload = TGm.InputFileUpload{Filename: ttvStream.UserLogin + "_pic.jpg", Data: bytes.NewReader(fileData)}
+		photoParams = TG.SendPhotoParams{
+			ChatID:                tgUser.TgChannelID,
+			Photo:                 &fileUpload,
+			Caption:               msg,
+			ShowCaptionAboveMedia: true,
+			ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyKeyboard},
+		}
+		if sentMsg, errOFF = tg.bot.SendPhoto(tg.ctx, &photoParams); errOFF != nil {
 			tg.log.LogDebug("TTVUserOnlineNotify() FWD_OFF error: %s[%s]: %s", tgUser.Nickname, tgUser.TgChannelID, errOFF.Error())
 			_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
 				ChatID: tg.cfg.GetJsonAdmin().TgUserID,
