@@ -74,17 +74,15 @@ LabelStart:
 		ttvClient.SetAppAccessToken(respToken.Data.AccessToken)
 		goto LabelStart
 	}
-LabelUserOnline:
 	for i, el := range ttv.userIDs {
 		for _, elem := range respStream.Data.Streams {
 			if el == elem.UserID {
 				if ttv.onlineUsers[i].IsZero() {
 					ttv.onlineUsers[i] = time.Now()
-					ttv.offlineUsers[i] = 0
 					ttv.log.LogInfo("ttvClient.GetStreams(): %s[%s] online", elem.UserLogin, elem.UserID)
 					go ttv.tg.TTVNotifyUserOnline(T.StreamInfoTTV{UserID: elem.UserID, UserLogin: elem.UserLogin, Game: elem.GameName, Title: elem.Title})
 				}
-				continue LabelUserOnline
+				ttv.offlineUsers[i] = 0
 			}
 		}
 		if !ttv.onlineUsers[i].IsZero() {
