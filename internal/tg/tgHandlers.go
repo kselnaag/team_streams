@@ -38,7 +38,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvStream T.StreamInfoTTV) {
 		ShowCaptionAboveMedia: true,
 		ReplyMarkup:           TGm.InlineKeyboardMarkup{InlineKeyboard: notifyKeyboard},
 	}
-	if _, errDEBUG := tg.bot.SendPhoto(tg.ctx, &photoParams); errDEBUG != nil { // TS_APP_AUTOFORWARD == "DEBUG"
+	if _, errDEBUG := tg.bot.SendPhoto(tg.ctx, &photoParams); errDEBUG != nil { // config <<TS_APP_AUTOFORWARD == "DEBUG">>
 		tg.log.LogDebug("TTVnotify() DEBUG error: ChanID[%s]: %s", tg.cfg.GetJsonAdmin().TgChannelID, errDEBUG.Error())
 		_, _ = tg.bot.SendMessage(tg.ctx, &TG.SendMessageParams{
 			ChatID: tg.cfg.GetJsonAdmin().TgUserID,
@@ -49,7 +49,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvStream T.StreamInfoTTV) {
 		sentMsg, fwdMsg *TGm.Message
 		errOFF, errON   error
 	)
-	if (tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) == T.ADEL_OFF) || (tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) == T.AFORW_ON) { // TS_APP_AUTOFORWARD == "OFF"
+	if (tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) == T.AFORW_ON) || (tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) == T.ADEL_OFF) { // config <<TS_APP_AUTOFORWARD == "OFF">>
 		fileData, _ = tg.fs.ReadFile("data/" + ttvStream.UserLogin + "_pic.jpg")
 		fileUpload = TGm.InputFileUpload{Filename: ttvStream.UserLogin + "_pic.jpg", Data: bytes.NewReader(fileData)}
 		photoParams = TG.SendPhotoParams{
@@ -76,7 +76,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvStream T.StreamInfoTTV) {
 			}
 		}
 	}
-	if tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) == T.AFORW_ON { // TS_APP_AUTOFORWARD == "ON"
+	if tg.cfg.GetEnvVal(T.TS_APP_AUTOFORWARD) == T.AFORW_ON { // config <<TS_APP_AUTOFORWARD == "ON">>
 		uniqueChannels := make(map[string]struct{}, 8)
 		for idx, el := range tg.cfg.GetJsonUsers() {
 			if _, ok := uniqueChannels[el.TgChannelID]; !ok && (el.TgUserID != tgUser.TgUserID) {
@@ -93,9 +93,7 @@ func (tg *Tg) TTVNotifyUserOnline(ttvStream T.StreamInfoTTV) {
 						Text:   fmt.Sprintf("TTVUserOnlineNotify() FWD_ON error: %s[%s]: %s", el.Nickname, el.TgChannelID, errON.Error()),
 					})
 				} else {
-					if tg.cfg.GetEnvVal(T.TS_APP_AUTODEL) == T.ADEL_ON {
-						tg.msgsToDel[idx] = append(tg.msgsToDel[idx], delMsg{ChanID: el.TgChannelID, MsgID: fwdMsg.ID})
-					}
+					tg.msgsToDel[idx] = append(tg.msgsToDel[idx], delMsg{ChanID: el.TgChannelID, MsgID: fwdMsg.ID})
 				}
 			}
 		}
