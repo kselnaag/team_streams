@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	T "team_streams/internal/types"
+	T "team_notifies/internal/types"
 	"time"
 
 	TG "github.com/go-telegram/bot"

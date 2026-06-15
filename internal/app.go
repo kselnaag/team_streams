@@ -5,12 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
-	C "team_streams/internal/cfg"
-	L "team_streams/internal/log"
-	T "team_streams/internal/types"
+	C "team_notifies/internal/cfg"
+	L "team_notifies/internal/log"
+	T "team_notifies/internal/types"
 
-	TG "team_streams/internal/tg"
-	TTV "team_streams/internal/ttv"
+	TG "team_notifies/internal/tg"
+	TTV "team_notifies/internal/ttv"
 )
 
 type App struct {

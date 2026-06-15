@@ -1,9 +1,6 @@
-bin/stoilo_streams
-bin/stoilo_streams.env
-bin/stoilo_streams.json
-bin/team_streams
-bin/team_streams.env
-bin/team_streasm.json
+bin/stoilo_notifies
+bin/stoilo_notifies.env
+bin/stoilo_notifies.json
 .vscode/**
 .ecode/**
 .git/**
@@ -11,9 +8,7 @@ go.work
 test/**
 build/test.sh
 build/deploy.sh
-config/stoilo_streams.env
-config/stoilo_streams.json
-config/team_streams.env
-config/team_streasm.json
+config/stoilo_notifies.env
+config/stoilo_notifies.json
 internal/TG.txt
 internal/TTV.txt

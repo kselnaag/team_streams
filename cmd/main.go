@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"runtime"
 	"syscall"
-	APP "team_streams/internal"
+	APP "team_notifies/internal"
 )
 
 func main() {

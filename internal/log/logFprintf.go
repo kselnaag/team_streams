@@ -24,7 +24,7 @@ import (
 	"runtime/metrics"
 	"strings"
 	"sync"
-	T "team_streams/internal/types"
+	T "team_notifies/internal/types"
 	"time"
 )
 

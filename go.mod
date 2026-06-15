@@ -1,4 +1,4 @@
-module team_streams
+module team_notifies
 
 go 1.25.1
 

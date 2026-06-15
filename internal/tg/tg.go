@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-	T "team_streams/internal/types"
-	"team_streams/pic"
+	T "team_notifies/internal/types"
+	"team_notifies/pic"
 
 	TG "github.com/go-telegram/bot"
 	TGm "github.com/go-telegram/bot/models"

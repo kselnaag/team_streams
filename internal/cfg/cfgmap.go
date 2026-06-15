@@ -10,8 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	L "team_streams/internal/log"
-	T "team_streams/internal/types"
+	L "team_notifies/internal/log"
+	T "team_notifies/internal/types"
 )
 
 var _ T.ICfg = (*CfgMaps)(nil)

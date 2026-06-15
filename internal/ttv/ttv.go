@@ -3,7 +3,7 @@ package ttv
 import (
 	"context"
 	"fmt"
-	T "team_streams/internal/types"
+	T "team_notifies/internal/types"
 	"time"
 
 	TTV "github.com/nicklaw5/helix/v2"

@@ -1,10 +1,10 @@
-# **TEAM_STREAMS**<br>📱 Integration bot for coupling twitch and telegram channels 💻 
+# **TEAM_NOTIFIES**<br>📱 Integration bot for coupling twitch and telegram channels 💻 
 ----
 
 ## 🍱 System parts
 - team_streams_app - TwitchAPI_app as TTV integration part *(make it in Twitch dev panel)*
 - team_streams_bot - TelegramAPI_bot as TG integration part *(make it throught BotFather in Telegram)*
-- team_streams - external service with logic and usecases *(this project)*
+- team_notifies - external service with logic and usecases *(this project)*
 
 ## ⚡ Features
 - Just start TTV stream: bot makes post about it in main TG channel and forwards it to another team members
@@ -20,7 +20,7 @@ Can pass tokens throught env vars: TG_BOT_TOKEN, TTV_CLIENT_ID, TTV_CLIENT_SECRE
 
 🔒 App credentials: 🔑
 ```
-kselnaag:~/team_streams$ cat ./bin/team_streams.env
+kselnaag:~/team_notifies$ cat ./bin/team_notifies.env
 # LOG levels: TRACE, DEBUG, INFO, WARN, ERROR, PANIC, FATAL, NOLOG(default if empty or mess)
 TS_LOG_LEVEL=INFO
 TS_APP_IP=localhost
@@ -36,7 +36,7 @@ TTV_APPACCESS_TOKEN=
 
 👥 Team members: 👥
 ```
-kselnaag:~/team_streams$ cat ./bin/team_streams.json
+kselnaag:~/team_notifies$ cat ./bin/team_notifies.json
 {"admin":{
     "nickname":"",
     "longname":"",
@@ -73,27 +73,27 @@ Fill and save this configs near by the executable file
 
 📂 Start folder: 🏁
 ```
-kselnaag:~/team_streams/bin$ ll
+kselnaag:~/team_notifies/bin$ ll
 drwxrwxrwx 1 ksel ksel    4096 Sep 23 04:38 ./
 drwxrwxrwx 1 ksel ksel    4096 Sep 22 23:28 ../
--rwxrwxrwx 1 ksel ksel 9526414 Oct  1 22:04 stoilo_streams*
--rwxrwxrwx 1 ksel ksel     347 Oct  1 21:50 team_streams.env
--rwxrwxrwx 1 ksel ksel      28 Oct  1 21:50 team_streams.json
+-rwxrwxrwx 1 ksel ksel 9526414 Oct  1 22:04 team_notifies*
+-rwxrwxrwx 1 ksel ksel     347 Oct  1 21:50 team_notifies.env
+-rwxrwxrwx 1 ksel ksel      28 Oct  1 21:50 team_notifies.json
 ```
 To re-read configs without stopping process use `kill -SIGHUP <pid>` (server access required) or use options control throught bot private chat (if authorized in TG)
 
 ## ⚙️ Build script
 
 ```
-kselnaag:~/team_streams$ go version
+kselnaag:~/team_notifies$ go version
 go version go1.25.1 linux/amd64
 
-kselnaag:~/team_streams$ ./build/build.sh
+kselnaag:~/team_notifies$ ./build/build.sh
 + GOOS=linux
 + GOARCH=amd64
-+ go build -o ./bin/team_streams ./cmd/main.go
++ go build -o ./bin/team_notifies ./cmd/main.go
 
-kselnaag:~/team_streams$ ldd ./bin/team_streams
+kselnaag:~/team_notifies$ ldd ./bin/team_notifies
         linux-vdso.so.1 (0x00007ffdc2406000)
         libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x000073cc27400000)
         /lib64/ld-linux-x86-64.so.2 (0x000073cc276ca000)

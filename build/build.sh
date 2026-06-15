@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 set -xe
-GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/stoilo_streams ./cmd/main.go
+GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/stoilo_notifies ./cmd/main.go
